@@ -7,43 +7,33 @@
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.29.7.tgz#12022450c45a4da6d8d8287b18a4ff2ddb23f768"
   integrity sha512-Nq8OhGWiZIZGV6hLHoyAKLLcJihP/xFeBMGJoUrxTX2psI8dCifzLhZISFb+VWS3wFMRDmCGw5R+dOySCqPLhw==
 
-"@clerk/backend@3.16.7-canary.v20260818012144":
-  version "3.16.7-canary.v20260818012144"
-  resolved "https://registry.yarnpkg.com/@clerk/backend/-/backend-3.16.7-canary.v20260818012144.tgz#2a901138a20798ab658ec2eb0ad4d13e0c0a8ada"
-  integrity sha512-UdwCTK1TDSXqhf6ENnGW2O20QTSRDomLC4vJZf9TdE9XGTk0BnSix9UndFC4k3m/WFZ7tNgl5gFR1E1F66sgeg==
+"@clerk/backend@^3.16.8":
+  version "3.16.8"
+  resolved "https://registry.yarnpkg.com/@clerk/backend/-/backend-3.16.8.tgz#59ddbdc79d9635d2b4033acf7fb5de452b0424ce"
+  integrity sha512-l2DncQ4JPye98Gh7JU7mHi3s23QeR0A7qaALeJ0g3Ii0FtAue7uiZEHNx/c61NYKfaN3UePSW2jxLjY/iksHLg==
   dependencies:
-    "@clerk/shared" "4.29.2-canary.v20260818012144"
+    "@clerk/shared" "^4.29.2"
     standardwebhooks "^1.0.0"
     tslib "2.8.1"
 
-"@clerk/nextjs@^5.32.0":
-  version "7.7.7-canary.v20260818012144"
-  resolved "https://registry.yarnpkg.com/@clerk/nextjs/-/nextjs-7.7.7-canary.v20260818012144.tgz#6573923770a6f58163cb1fd06621ebaf30c37f53"
-  integrity sha512-sYLSc6ArPrjExRTXdtWdyNJGe68JVW2J4oxYn6eA9uykluKQnak8Chhr63wlA+WNM57A9AFTHKD+qMv52EiG8g==
+"@clerk/nextjs@^7.7.8":
+  version "7.7.8"
+  resolved "https://registry.yarnpkg.com/@clerk/nextjs/-/nextjs-7.7.8.tgz#455672fc3996cb028fc134b339c1215e0f10a435"
+  integrity sha512-3HCxcy8XJEecpgHVlMLMHEB+QBovzuEZswya/E2NjlDjZhrE9MpKMmqIKCXB8Czqt6htOkPlGaSFnbuVXvQOZw==
   dependencies:
-    "@clerk/backend" "3.16.7-canary.v20260818012144"
-    "@clerk/react" "6.14.4-canary.v20260818012144"
-    "@clerk/shared" "4.29.2-canary.v20260818012144"
+    "@clerk/backend" "^3.16.8"
+    "@clerk/react" "^6.14.4"
+    "@clerk/shared" "^4.29.2"
     server-only "0.0.1"
     tslib "2.8.1"
 
-"@clerk/react@6.14.4-canary.v20260818012144":
-  version "6.14.4-canary.v20260818012144"
-  resolved "https://registry.yarnpkg.com/@clerk/react/-/react-6.14.4-canary.v20260818012144.tgz#389378ef8985b4b4e2e71f5ac12f9bef1fe4717a"
-  integrity sha512-1UNb1veVa+UycgM0M3mCN61LK24eUgICA9784qIrAHZfIlwvuDjPLZiT7wyD3lTOQjBg/qiyOt3utpQnbfgtew==
+"@clerk/react@^6.14.4":
+  version "6.14.4"
+  resolved "https://registry.yarnpkg.com/@clerk/react/-/react-6.14.4.tgz#a1c01db6e7ccd3d31237866f0070cdf1d26c2a0c"
+  integrity sha512-vMv3SU8dvo/b09/FAY7A0xaAe+YhZ2u4nvkRUUdqmOi8u3HNSJ3s2k2PIb0cNHsLurMvDzw/dD2Hbk97MPnN/A==
   dependencies:
-    "@clerk/shared" "4.29.2-canary.v20260818012144"
+    "@clerk/shared" "^4.29.2"
     tslib "2.8.1"
-
-"@clerk/shared@4.29.2-canary.v20260818012144":
-  version "4.29.2-canary.v20260818012144"
-  resolved "https://registry.yarnpkg.com/@clerk/shared/-/shared-4.29.2-canary.v20260818012144.tgz#6ec00edaeb4da78e5644d8743a45b748dbef8046"
-  integrity sha512-MQMXAdgwDhoo/dEFwAtLyC2NrDs0OzM4OvPveD81CBCNbZlm1+ULE2JpXMhG/9pQBHxuTsxUHwfNSYs5NLsN4g==
-  dependencies:
-    "@tanstack/query-core" "^5.100.6"
-    dequal "2.0.3"
-    glob-to-regexp "0.4.1"
-    js-cookie "3.0.7"
 
 "@clerk/shared@^3.47.2":
   version "3.47.8"
@@ -56,6 +46,16 @@
     js-cookie "3.0.7"
     std-env "^3.9.0"
     swr "2.3.4"
+
+"@clerk/shared@^4.29.2":
+  version "4.29.2"
+  resolved "https://registry.yarnpkg.com/@clerk/shared/-/shared-4.29.2.tgz#e094f2ccfd635451ba7f75ecb79c8fec7af430ea"
+  integrity sha512-9c9Mc1oqumsqo+JY5R37O1ipwcG3RmwPK9oadBLL9E4VxZXthXVaFI9u+1/I4BSFGA/B9BO+17tkVDL4G0Wpbg==
+  dependencies:
+    "@tanstack/query-core" "^5.100.6"
+    dequal "2.0.3"
+    glob-to-regexp "0.4.1"
+    js-cookie "3.0.7"
 
 "@clerk/themes@^2.2.0":
   version "2.4.57"
