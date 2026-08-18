@@ -1,8 +1,13 @@
 import { createClient } from "@libsql/client";
 import {
   defaultSavingsValues,
+  defaultUserSettings,
+  type MonthlySavings,
   type SavingsValues,
+  type UserSettings,
 } from "@/lib/savings";
+
+export type { MonthlySavings, UserSettings };
 
 const databaseUrl = process.env.TURSO_DATABASE_URL;
 const authToken = process.env.TURSO_AUTH_TOKEN;
@@ -190,26 +195,13 @@ export async function saveSavingsForUser(
 }
 
 /**
- * 固定設定
- *
- * 火災保険はここには保存しない。
- */
-export interface UserSettings {
-  base_salary: number;
-  rent: number;
-}
-
-/**
  * 固定設定取得
  */
 export async function getUserSettings(
   userId: string
 ): Promise<UserSettings> {
   if (!tursoClient) {
-    return {
-      base_salary: 0,
-      rent: 0,
-    };
+    return defaultUserSettings;
   }
 
   const result = await tursoClient.execute({
@@ -231,10 +223,7 @@ const row = result.rows[0] as unknown as
   | undefined;
 
   if (!row) {
-    return {
-      base_salary: 0,
-      rent: 0,
-    };
+    return defaultUserSettings;
   }
 
   return {
@@ -279,21 +268,30 @@ export async function saveUserSettings(
   return settings;
 }
 
-/**
- * 月別データ
- */
-export interface MonthlySavings {
-  year: number;
-  month: number;
-  card: number;
-  horse_club: number;
-  friend_club: number;
-  fire_insurance: number;
-  balance: number;
+function mapMonthlyRow(row: unknown): MonthlySavings {
+  const r = row as {
+    year: number | string;
+    month: number | string;
+    card: number | string;
+    horse_club: number | string;
+    friend_club: number | string;
+    fire_insurance: number | string;
+    balance: number | string;
+  };
+
+  return {
+    year: Number(r.year ?? 0),
+    month: Number(r.month ?? 0),
+    card: Number(r.card ?? 0),
+    horse_club: Number(r.horse_club ?? 0),
+    friend_club: Number(r.friend_club ?? 0),
+    fire_insurance: Number(r.fire_insurance ?? 0),
+    balance: Number(r.balance ?? 0),
+  };
 }
 
 /**
- * 月別データ取得
+ * 指定年の月別データ取得
  */
 export async function getMonthlySavingsForUser(
   userId: string,
@@ -321,27 +319,40 @@ export async function getMonthlySavingsForUser(
     args: [userId, year],
   });
 
-  return result.rows.map((row) => {
-    const r = row as unknown as {
-      year: number | string;
-      month: number | string;
-      card: number | string;
-      horse_club: number | string;
-      friend_club: number | string;
-      fire_insurance: number | string;
-      balance: number | string;
-    };
+  return result.rows.map(mapMonthlyRow);
+}
 
-    return {
-      year: Number(r.year ?? 0),
-      month: Number(r.month ?? 0),
-      card: Number(r.card ?? 0),
-      horse_club: Number(r.horse_club ?? 0),
-      friend_club: Number(r.friend_club ?? 0),
-      fire_insurance: Number(r.fire_insurance ?? 0),
-      balance: Number(r.balance ?? 0),
-    };
+/**
+ * 開始年月以降の月別データ取得
+ */
+export async function getMonthlySavingsFrom(
+  userId: string,
+  fromYear: number,
+  fromMonth: number
+): Promise<MonthlySavings[]> {
+  if (!tursoClient) {
+    return [];
+  }
+
+  const result = await tursoClient.execute({
+    sql: `
+      SELECT
+        year,
+        month,
+        card,
+        horse_club,
+        friend_club,
+        fire_insurance,
+        balance
+      FROM monthly_savings
+      WHERE user_id = ?
+        AND (year > ? OR (year = ? AND month >= ?))
+      ORDER BY year ASC, month ASC
+    `,
+    args: [userId, fromYear, fromYear, fromMonth],
   });
+
+  return result.rows.map(mapMonthlyRow);
 }
 
 /**
@@ -391,4 +402,17 @@ export async function saveMonthlySavings(
   });
 
   return data;
+}
+
+export async function saveMonthlySavingsBatch(
+  userId: string,
+  items: MonthlySavings[]
+): Promise<MonthlySavings[]> {
+  const saved: MonthlySavings[] = [];
+
+  for (const item of items) {
+    saved.push(await saveMonthlySavings(userId, item));
+  }
+
+  return saved;
 }

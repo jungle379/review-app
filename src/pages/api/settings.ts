@@ -1,13 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import {
-  defaultSavingsValues,
-  toSafeNumber,
-  type SavingsValues,
-} from "@/lib/savings";
+import { normalizeSettings, type UserSettings } from "@/lib/savings";
 import {
   ensureSavingsTable,
-  getSavingsForUser,
-  saveSavingsForUser,
+  getUserSettings,
+  saveUserSettings,
 } from "@/lib/turso";
 
 function getUserId(value: unknown): string {
@@ -24,28 +20,18 @@ export default async function handler(
     await ensureSavingsTable();
 
     if (req.method === "GET") {
-      const values = await getSavingsForUser(getUserId(req.query.userId));
-      return res.status(200).json(values);
+      const settings = await getUserSettings(getUserId(req.query.userId));
+      return res.status(200).json(settings);
     }
 
     if (req.method === "POST") {
-      const body = (req.body ?? {}) as Partial<SavingsValues> & {
+      const body = (req.body ?? {}) as Partial<UserSettings> & {
         userId?: string;
       };
 
-      const existing = await getSavingsForUser(getUserId(body.userId));
-
-      const values: SavingsValues = {
-        ...existing,
-        balance: toSafeNumber(body.balance ?? existing.balance),
-      };
-
-      const saved = await saveSavingsForUser(
+      const saved = await saveUserSettings(
         getUserId(body.userId),
-        {
-          ...defaultSavingsValues,
-          ...values,
-        }
+        normalizeSettings(body)
       );
 
       return res.status(200).json(saved);
@@ -55,7 +41,7 @@ export default async function handler(
       message: "Method not allowed",
     });
   } catch (error) {
-    console.error("/api/savings エラー:", error);
+    console.error("/api/settings エラー:", error);
 
     return res.status(500).json({
       message:

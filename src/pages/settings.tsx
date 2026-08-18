@@ -14,6 +14,7 @@ import {
   Title,
 } from "@mantine/core";
 import { IconArrowLeft } from "@tabler/icons-react";
+import { fetchSettings, saveSettings } from "@/api/settings";
 import MantineLoader from "@/components/Loader";
 
 interface UserSettings {
@@ -46,19 +47,7 @@ export default function SettingsPage() {
         setIsLoading(true);
         setMessage("");
 
-        const response = await fetch(
-          `/api/savings?userId=${encodeURIComponent(
-            user.id
-          )}&action=settings`
-        );
-
-        if (!response.ok) {
-          throw new Error(
-            `設定の取得に失敗しました (${response.status})`
-          );
-        }
-
-        const data = await response.json();
+        const data = await fetchSettings(user.id);
 
         setSettings({
           base_salary:
@@ -184,59 +173,19 @@ export default function SettingsPage() {
     setMessage("");
 
     try {
-      const requestBody = {
-        userId: user.id,
-        action: "save-settings",
-
-        base_salary: Number(
-          settings.base_salary || 0
-        ),
-
-        rent: Number(
-          settings.rent || 0
-        ),
-      };
-
-      console.log(
-        "設定保存リクエスト:",
-        requestBody
-      );
-
-      const response = await fetch(
-        "/api/savings",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(
-            requestBody
-          ),
-        }
-      );
-
-      const data =
-        await response
-          .json()
-          .catch(() => null);
-
-      if (!response.ok) {
-        throw new Error(
-          data?.message ??
-            `設定の保存に失敗しました (${response.status})`
-        );
-      }
+      const data = await saveSettings(user.id, {
+        base_salary: Number(settings.base_salary || 0),
+        rent: Number(settings.rent || 0),
+      });
 
       setSettings({
         base_salary:
-          data?.base_salary !== null &&
-          data?.base_salary !== undefined
+          data.base_salary !== null &&
+          data.base_salary !== undefined
             ? String(data.base_salary)
             : "",
-
         rent:
-          data?.rent !== null &&
-          data?.rent !== undefined
+          data.rent !== null && data.rent !== undefined
             ? String(data.rent)
             : "",
       });
