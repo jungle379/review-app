@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
-module.exports = {
-  swcMinify: true,
+const nextConfig = {
   reactStrictMode: true,
+  experimental: {
+    optimizePackageImports: ["@mantine/core"],
+  },
 };
+
+module.exports = nextConfig;

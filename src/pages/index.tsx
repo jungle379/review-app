@@ -1,44 +1,72 @@
-import { useAtom } from "jotai";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import { toggleDatasAtom } from "../state/todo";
+import { SignInButton, SignOutButton, UserButton, useUser } from "@clerk/nextjs";
+import { Button, Container, Group, Paper, Stack, Text, Title } from "@mantine/core";
 
 const Home: NextPage = () => {
-  const [data, toggleData] = useAtom(toggleDatasAtom);
+  const { isSignedIn, isLoaded } = useUser();
 
   return (
     <>
       <Head>
-        <title>ホームページ</title>
+        <title>貯金計算アプリ</title>
       </Head>
-      <div className="flex justify-between h-[300px]">
-        <div>
-          <div>
-            <h1>投稿一覧</h1>
-          </div>
-          {data.map((data) => (
-            <div key={data.id}>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={data.isDone}
-                  onChange={() => toggleData({ id: data.id })}
-                  className="w-[1.5rem] h-[1.5rem]"
-                />
-                <Link href={`/posts/${encodeURIComponent(data.id)}`}>
-                  {data.title}
-                </Link>
-              </label>
-            </div>
-          ))}
-        </div>
-        <div className="mx-10 my-10 w-[350px] h-[40px]">
-          <div className="mx-10 text-20 text-center hover:underline w-[150px] border-2 border-orange-500">
-            <Link href="../posts">投稿ページへ</Link>
-          </div>
-        </div>
-      </div>
+
+      <Container size="lg" py={80}>
+        <Paper radius="lg" p="xl" withBorder>
+          <Stack gap="lg">
+            <Group justify="space-between">
+              <div>
+                <Text c="blue" fw={700} tt="uppercase" size="sm">
+                  Saving Planner
+                </Text>
+                <Title order={1} size={42} mt={8}>
+                  毎月の収支を見える化して、貯金計画を作ろう
+                </Title>
+              </div>
+
+              {isLoaded && isSignedIn ? (
+                <Group gap="sm">
+                  <Button component={Link} href="/dashboard" color="blue">
+                    ダッシュボードへ
+                  </Button>
+                  <UserButton afterSignOutUrl="/" />
+                </Group>
+              ) : (
+                <SignInButton forceRedirectUrl="/dashboard">
+                  <Button color="blue">ログイン</Button>
+                </SignInButton>
+              )}
+            </Group>
+
+            <Text size="lg" c="dimmed">
+              残高、給与、家賃、火災保険、カード、馬主、友の会を一目で確認し、毎月の貯蓄額を計算できます。
+            </Text>
+
+            <Group>
+              {isLoaded && isSignedIn ? (
+                <>
+                  <Button component={Link} href="/dashboard" size="lg" color="gray">
+                    貯金計算を開く
+                  </Button>
+                  <SignOutButton>
+                    <Button variant="light" color="red">
+                      ログアウト
+                    </Button>
+                  </SignOutButton>
+                </>
+              ) : (
+                <SignInButton forceRedirectUrl="/dashboard">
+                  <Button size="lg" color="blue">
+                    はじめる
+                  </Button>
+                </SignInButton>
+              )}
+            </Group>
+          </Stack>
+        </Paper>
+      </Container>
     </>
   );
 };
