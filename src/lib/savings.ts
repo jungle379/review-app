@@ -18,10 +18,24 @@ export const defaultSavingsValues: SavingsValues = {
   friendClub: 0,
 };
 
-export function calculateMonthlyNet(data: SavingsValues) {
-  return data.salary - data.rent - data.fireInsurance - data.card - data.horseClub - data.friendClub;
+export function calculateMonthlyNet(
+  data: SavingsValues
+) {
+  return (
+    data.salary -
+    data.rent -
+    data.fireInsurance -
+    data.card -
+    data.horseClub -
+    data.friendClub
+  );
 }
 
-export function calculateTotalSavings(data: SavingsValues) {
-  return data.balance + calculateMonthlyNet(data);
+export function calculateTotalSavings(
+  data: SavingsValues
+) {
+  return (
+    data.balance +
+    calculateMonthlyNet(data)
+  );
 }

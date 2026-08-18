@@ -19,7 +19,6 @@ import MantineLoader from "@/components/Loader";
 interface UserSettings {
   base_salary: string;
   rent: string;
-  fire_insurance: string;
 }
 
 export default function SettingsPage() {
@@ -28,7 +27,6 @@ export default function SettingsPage() {
   const [settings, setSettings] = useState<UserSettings>({
     base_salary: "",
     rent: "",
-    fire_insurance: "",
   });
 
   const [isLoading, setIsLoading] = useState(true);
@@ -73,12 +71,6 @@ export default function SettingsPage() {
             data.rent !== null &&
             data.rent !== undefined
               ? String(data.rent)
-              : "",
-
-          fire_insurance:
-            data.fire_insurance !== null &&
-            data.fire_insurance !== undefined
-              ? String(data.fire_insurance)
               : "",
         });
       } catch (error) {
@@ -174,20 +166,6 @@ export default function SettingsPage() {
   };
 
   // ========================================
-  // 火災保険変更
-  // ========================================
-  const handleFireInsuranceChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const value = event.currentTarget.value;
-
-    setSettings((prev) => ({
-      ...prev,
-      fire_insurance: value,
-    }));
-  };
-
-  // ========================================
   // 設定保存
   // ========================================
   const handleSave = async () => {
@@ -216,10 +194,6 @@ export default function SettingsPage() {
 
         rent: Number(
           settings.rent || 0
-        ),
-
-        fire_insurance: Number(
-          settings.fire_insurance || 0
         ),
       };
 
@@ -264,12 +238,6 @@ export default function SettingsPage() {
           data?.rent !== null &&
           data?.rent !== undefined
             ? String(data.rent)
-            : "",
-
-        fire_insurance:
-          data?.fire_insurance !== null &&
-          data?.fire_insurance !== undefined
-            ? String(data.fire_insurance)
             : "",
       });
 
@@ -430,37 +398,6 @@ export default function SettingsPage() {
                   placeholder="76000"
                   onChange={
                     handleRentChange
-                  }
-                />
-              </div>
-
-              {/* ============================
-                  火災保険
-              ============================= */}
-              <div>
-                <Text
-                  fw={600}
-                  mb="xs"
-                >
-                  火災保険（固定）
-                </Text>
-
-                <Text
-                  c="dimmed"
-                  size="sm"
-                  mb="md"
-                >
-                  毎月の火災保険料（固定値）を
-                  入力してください。
-                </Text>
-
-                <Input
-                  value={
-                    settings.fire_insurance
-                  }
-                  placeholder="5000"
-                  onChange={
-                    handleFireInsuranceChange
                   }
                 />
               </div>
