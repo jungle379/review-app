@@ -12,18 +12,28 @@ export default function LoginPage() {
         <title>ログイン</title>
       </Head>
 
-      <Container size="sm" py={80}>
-        <Paper radius="lg" p="xl" withBorder>
-          <Stack align="center" gap="md">
-            <Title order={2}>貯金計算アプリにログイン</Title>
-            <Text c="dimmed" ta="center">
+      <Container size="sm" py={{ base: 40, md: 80 }} px="md">
+        <Paper radius="lg" p={{ base: "md", md: "xl" }} withBorder>
+          <Stack align="stretch" gap="md">
+            <Title order={2} ta="center" fz={{ base: 22, md: 28 }}>
+              貯金計算アプリにログイン
+            </Title>
+            <Text c="dimmed" ta="center" size="sm">
               Clerk 認証でログイン後、ダッシュボードで収支を管理できます。
             </Text>
 
             {isLoaded && isSignedIn ? (
               <>
-                <Text fw={600}>すでにログイン済みです。</Text>
-                <Button component={Link} href="/dashboard" color="blue">
+                <Text fw={600} ta="center">
+                  すでにログイン済みです。
+                </Text>
+                <Button
+                  component={Link}
+                  href="/dashboard"
+                  color="blue"
+                  size="md"
+                  fullWidth
+                >
                   ダッシュボードへ進む
                 </Button>
               </>
@@ -36,7 +46,13 @@ export default function LoginPage() {
               />
             )}
 
-            <Button component={Link} href="/" variant="light">
+            <Button
+              component={Link}
+              href="/"
+              variant="light"
+              size="md"
+              fullWidth
+            >
               トップへ戻る
             </Button>
           </Stack>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { SignOutButton, useUser } from "@clerk/nextjs";
 
 import {
+  Box,
   ActionIcon,
   Alert,
   Button,
@@ -53,6 +54,8 @@ import {
 } from "@/lib/savings";
 
 import Loader from "@/components/Loader";
+import MonthlySavingsMobile from "@/components/MonthlySavingsMobile";
+import ResponsiveButtonGroup from "@/components/ResponsiveButtonGroup";
 
 function DashboardContent({
   isSaving,
@@ -261,7 +264,7 @@ function DashboardContent({
         await saveMonthlySavings(resolvedUserId, monthlySavings);
       }
 
-      setMessage("保存しました。Turso に反映されています。");
+      setMessage("保存しました。");
     } catch (error) {
       console.error("保存エラー:", error);
       setMessage(
@@ -283,30 +286,32 @@ function DashboardContent({
 
   return (
     <>
-      <SimpleGrid cols={{ base: 1, md: 3 }} spacing="lg">
-        <Card radius="lg" p="lg" withBorder>
+      <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="lg">
+        <Card radius="lg" p={{ base: "md", md: "lg" }} withBorder>
           <Group justify="space-between">
             <Text fw={600}>今月の収支</Text>
             <IconPigMoney size={20} color="#1c7ed6" />
           </Group>
 
-          <Title order={2} mt="sm">
+          <Title order={2} mt="sm" fz={{ base: 24, md: 32 }}>
             ¥{toSafeNumber(currentMonthNet).toLocaleString()}
           </Title>
 
           <Text c="dimmed" size="sm">
-            {planningMonth.year}年{planningMonth.month}月 / 給与 - 家賃 -
-            火災保険 - カード - 友の会 - 馬主
+            {planningMonth.year}年{planningMonth.month}月
+          </Text>
+          <Text c="dimmed" size="xs" visibleFrom="sm">
+            給与 - 家賃 - 火災保険 - カード - 友の会 - 馬主
           </Text>
         </Card>
 
-        <Card radius="lg" p="lg" withBorder>
+        <Card radius="lg" p={{ base: "md", md: "lg" }} withBorder>
           <Group justify="space-between">
             <Text fw={600}>累計貯金額（見積もり）</Text>
             <IconReceipt size={20} color="#2f9e44" />
           </Group>
 
-          <Title order={2} mt="sm">
+          <Title order={2} mt="sm" fz={{ base: 24, md: 32 }}>
             ¥{toSafeNumber(cumulativeSavings).toLocaleString()}
           </Title>
 
@@ -315,17 +320,9 @@ function DashboardContent({
           </Text>
         </Card>
 
-        <Card radius="lg" p="lg" withBorder>
+        <Card radius="lg" p={{ base: "md", md: "lg" }} withBorder>
           <Group justify="space-between">
             <Text fw={600}>利用ユーザー</Text>
-            <ActionIcon
-              variant="light"
-              color="gray"
-              aria-label="Reset"
-              onClick={handleReset}
-            >
-              <IconTrash size={16} />
-            </ActionIcon>
           </Group>
 
           <Title order={2} mt="sm">
@@ -338,8 +335,10 @@ function DashboardContent({
         </Card>
       </SimpleGrid>
 
-      <Paper radius="lg" p="lg" withBorder mt="lg">
-        <Title order={3}>開始貯金額</Title>
+      <Paper radius="lg" p={{ base: "md", md: "lg" }} withBorder mt="lg">
+        <Title order={3} fz={{ base: 20, md: 24 }}>
+          開始貯金額
+        </Title>
         <Text c="dimmed" size="sm" mt="xs" mb="md">
           2026年8月から貯金計画を開始します。開始時点の貯金額を入力すると、毎月の収支を足した累計見積もりが計算されます。
         </Text>
@@ -355,50 +354,65 @@ function DashboardContent({
         />
       </Paper>
 
-      <Paper radius="lg" p="lg" withBorder mt="lg">
-        <Group justify="space-between" mb="lg">
-          <Group gap="sm">
-            <ActionIcon
-              variant="light"
-              aria-label="前の年"
-              disabled={displayYear <= PLAN_START_YEAR}
-              onClick={() => setDisplayYear((year) => year - 1)}
-            >
-              <IconChevronLeft size={16} />
-            </ActionIcon>
+      <Paper radius="lg" p={{ base: "md", md: "lg" }} withBorder mt="lg">
+        <Stack gap="md" mb="lg">
+          <Group justify="space-between" wrap="wrap" gap="sm">
+            <Group gap="xs" wrap="nowrap">
+              <ActionIcon
+                variant="light"
+                aria-label="前の年"
+                disabled={displayYear <= PLAN_START_YEAR}
+                onClick={() => setDisplayYear((year) => year - 1)}
+              >
+                <IconChevronLeft size={16} />
+              </ActionIcon>
 
-            <Title order={3}>
-              月別収支表（{displayYear}年）
-            </Title>
+              <Title order={3} fz={{ base: 18, md: 24 }}>
+                月別収支表（{displayYear}年）
+              </Title>
 
-            <ActionIcon
-              variant="light"
-              aria-label="次の年"
-              onClick={() => setDisplayYear((year) => year + 1)}
-            >
-              <IconChevronRight size={16} />
-            </ActionIcon>
+              <ActionIcon
+                variant="light"
+                aria-label="次の年"
+                onClick={() => setDisplayYear((year) => year + 1)}
+              >
+                <IconChevronRight size={16} />
+              </ActionIcon>
+            </Group>
           </Group>
 
-          <Group>
-            <Button
-              component={Link}
-              href="/settings"
-              leftSection={<IconSettings size={16} />}
-              variant="light"
-            >
-              設定
-            </Button>
-
-            <Button variant="light" color="gray" onClick={handleReset}>
-              リセット
-            </Button>
-
-            <Button onClick={handleSave} loading={isSaving}>
-              保存
-            </Button>
-          </Group>
-        </Group>
+          <ResponsiveButtonGroup
+            items={[
+              {
+                key: "settings",
+                label: "設定",
+                buttonProps: {
+                  component: Link,
+                  href: "/settings",
+                  leftSection: <IconSettings size={16} />,
+                  variant: "light",
+                },
+              },
+              {
+                key: "reset",
+                label: "リセット",
+                buttonProps: {
+                  variant: "light",
+                  color: "gray",
+                  onClick: handleReset,
+                },
+              },
+              {
+                key: "save",
+                label: "保存",
+                buttonProps: {
+                  onClick: handleSave,
+                  loading: isSaving,
+                },
+              },
+            ]}
+          />
+        </Stack>
 
         {displayYear === PLAN_START_YEAR ? (
           <Alert mb="lg">
@@ -408,227 +422,247 @@ function DashboardContent({
 
         {message ? <Alert mb="lg">{message}</Alert> : null}
 
-        <div style={{ overflowX: "auto" }}>
-          <Table striped highlightOnHover>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>項目</Table.Th>
-                {visibleMonths.map(({ month, label }) => (
-                  <Table.Th
-                    key={month}
-                    style={{ textAlign: "center", minWidth: 100 }}
-                  >
-                    {label}
-                  </Table.Th>
-                ))}
-              </Table.Tr>
-            </Table.Thead>
+        <Box hiddenFrom="md">
+          <MonthlySavingsMobile
+            displayYear={displayYear}
+            visibleMonths={visibleMonths}
+            settings={settings}
+            monthlySavings={monthlySavings}
+            horseClubInputs={horseClubInputs}
+            cumulativeByMonth={cumulativeByMonth}
+            onMonthlyUpdate={(month, field, value) =>
+              handleMonthlyUpdate(month, field, value)
+            }
+            onHorseClubUpdate={handleHorseClubUpdate}
+          />
+        </Box>
 
-            <Table.Tbody>
-              <Table.Tr>
-                <Table.Td fw={600}>給与</Table.Td>
-                {visibleMonths.map(({ month }) => (
-                  <Table.Td
-                    key={`salary-${month}`}
-                    style={{ textAlign: "center" }}
-                  >
-                    <Text size="sm">
-                      ¥{toSafeNumber(settings.base_salary).toLocaleString()}
-                    </Text>
-                  </Table.Td>
-                ))}
-              </Table.Tr>
+        <Box visibleFrom="md">
+          <Text size="xs" c="dimmed" mb="xs">
+            表は左右にスクロールできます。左端の項目名は固定されます。
+          </Text>
+          <div className="table-scroll-wrapper">
+            <Table striped highlightOnHover className="table-sticky-first">
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th style={{ minWidth: 88 }}>項目</Table.Th>
+                  {visibleMonths.map(({ month, label }) => (
+                    <Table.Th
+                      key={month}
+                      style={{ textAlign: "center", minWidth: 96 }}
+                    >
+                      {label}
+                    </Table.Th>
+                  ))}
+                </Table.Tr>
+              </Table.Thead>
 
-              <Table.Tr>
-                <Table.Td fw={600}>家賃</Table.Td>
-                {visibleMonths.map(({ month }) => (
-                  <Table.Td
-                    key={`rent-${month}`}
-                    style={{ textAlign: "center" }}
-                  >
-                    <Text size="sm">
-                      ¥{toSafeNumber(settings.rent).toLocaleString()}
-                    </Text>
-                  </Table.Td>
-                ))}
-              </Table.Tr>
-
-              <Table.Tr>
-                <Table.Td fw={600}>火災保険</Table.Td>
-                {visibleMonths.map(({ month }) => {
-                  const data = findMonthlyData(
-                    monthlySavings,
-                    displayYear,
-                    month
-                  );
-
-                  return (
-                    <Table.Td key={`fire-insurance-${month}`}>
-                      <Input
-                        value={String(data?.fire_insurance ?? "")}
-                        size="xs"
-                        inputMode="numeric"
-                        placeholder="0"
-                        onChange={(event) =>
-                          handleMonthlyUpdate(
-                            month,
-                            "fire_insurance",
-                            event.currentTarget.value
-                          )
-                        }
-                      />
-                    </Table.Td>
-                  );
-                })}
-              </Table.Tr>
-
-              <Table.Tr>
-                <Table.Td fw={600}>カード</Table.Td>
-                {visibleMonths.map(({ month }) => {
-                  const data = findMonthlyData(
-                    monthlySavings,
-                    displayYear,
-                    month
-                  );
-
-                  return (
-                    <Table.Td key={`card-${month}`}>
-                      <Input
-                        value={String(data?.card ?? "")}
-                        size="xs"
-                        inputMode="numeric"
-                        placeholder="0"
-                        onChange={(event) =>
-                          handleMonthlyUpdate(
-                            month,
-                            "card",
-                            event.currentTarget.value
-                          )
-                        }
-                      />
-                    </Table.Td>
-                  );
-                })}
-              </Table.Tr>
-
-              <Table.Tr>
-                <Table.Td fw={600}>馬主</Table.Td>
-                {visibleMonths.map(({ month }) => {
-                  const data = findMonthlyData(
-                    monthlySavings,
-                    displayYear,
-                    month
-                  );
-                  const draftKey = monthKey(displayYear, month);
-
-                  return (
-                    <Table.Td key={`horse-${month}`}>
-                      <Input
-                        value={
-                          horseClubInputs[draftKey] ??
-                          (data?.horse_club == null
-                            ? ""
-                            : String(data.horse_club))
-                        }
-                        size="xs"
-                        inputMode="decimal"
-                        placeholder="0"
-                        onChange={(event) =>
-                          handleHorseClubUpdate(
-                            month,
-                            event.currentTarget.value
-                          )
-                        }
-                      />
-                    </Table.Td>
-                  );
-                })}
-              </Table.Tr>
-
-              <Table.Tr>
-                <Table.Td fw={600}>友の会</Table.Td>
-                {visibleMonths.map(({ month }) => {
-                  const data = findMonthlyData(
-                    monthlySavings,
-                    displayYear,
-                    month
-                  );
-
-                  return (
-                    <Table.Td key={`friend-${month}`}>
-                      <Input
-                        value={String(data?.friend_club ?? "")}
-                        size="xs"
-                        inputMode="numeric"
-                        placeholder="0"
-                        onChange={(event) =>
-                          handleMonthlyUpdate(
-                            month,
-                            "friend_club",
-                            event.currentTarget.value
-                          )
-                        }
-                      />
-                    </Table.Td>
-                  );
-                })}
-              </Table.Tr>
-
-              <Table.Tr bg="blue.0">
-                <Table.Td fw={700} c="blue">
-                  今月の収支
-                </Table.Td>
-                {visibleMonths.map(({ month }) => {
-                  const net = calculateMonthNet(
-                    settings,
-                    findMonthlyData(monthlySavings, displayYear, month)
-                  );
-
-                  return (
+              <Table.Tbody>
+                <Table.Tr>
+                  <Table.Td fw={600}>給与</Table.Td>
+                  {visibleMonths.map(({ month }) => (
                     <Table.Td
-                      key={`net-${month}`}
+                      key={`salary-${month}`}
                       style={{ textAlign: "center" }}
                     >
-                      <Text
-                        fw={600}
-                        size="sm"
-                        c={net >= 0 ? "green" : "red"}
-                      >
-                        ¥{net.toLocaleString()}
+                      <Text size="sm">
+                        ¥{toSafeNumber(settings.base_salary).toLocaleString()}
                       </Text>
                     </Table.Td>
-                  );
-                })}
-              </Table.Tr>
+                  ))}
+                </Table.Tr>
 
-              <Table.Tr bg="green.0">
-                <Table.Td fw={700} c="green.8">
-                  累計貯金額
-                </Table.Td>
-                {visibleMonths.map(({ month }) => {
-                  const cumulative = toSafeNumber(
-                    cumulativeByMonth[month]
-                  );
-
-                  return (
+                <Table.Tr>
+                  <Table.Td fw={600}>家賃</Table.Td>
+                  {visibleMonths.map(({ month }) => (
                     <Table.Td
-                      key={`cumulative-${month}`}
+                      key={`rent-${month}`}
                       style={{ textAlign: "center" }}
                     >
-                      <Text
-                        fw={700}
-                        size="sm"
-                        c={cumulative >= 0 ? "green" : "red"}
-                      >
-                        ¥{cumulative.toLocaleString()}
+                      <Text size="sm">
+                        ¥{toSafeNumber(settings.rent).toLocaleString()}
                       </Text>
                     </Table.Td>
-                  );
-                })}
-              </Table.Tr>
-            </Table.Tbody>
-          </Table>
-        </div>
+                  ))}
+                </Table.Tr>
+
+                <Table.Tr>
+                  <Table.Td fw={600}>火災保険</Table.Td>
+                  {visibleMonths.map(({ month }) => {
+                    const data = findMonthlyData(
+                      monthlySavings,
+                      displayYear,
+                      month
+                    );
+
+                    return (
+                      <Table.Td key={`fire-insurance-${month}`}>
+                        <Input
+                          value={String(data?.fire_insurance ?? "")}
+                          size="xs"
+                          inputMode="numeric"
+                          placeholder="0"
+                          onChange={(event) =>
+                            handleMonthlyUpdate(
+                              month,
+                              "fire_insurance",
+                              event.currentTarget.value
+                            )
+                          }
+                        />
+                      </Table.Td>
+                    );
+                  })}
+                </Table.Tr>
+
+                <Table.Tr>
+                  <Table.Td fw={600}>カード</Table.Td>
+                  {visibleMonths.map(({ month }) => {
+                    const data = findMonthlyData(
+                      monthlySavings,
+                      displayYear,
+                      month
+                    );
+
+                    return (
+                      <Table.Td key={`card-${month}`}>
+                        <Input
+                          value={String(data?.card ?? "")}
+                          size="xs"
+                          inputMode="numeric"
+                          placeholder="0"
+                          onChange={(event) =>
+                            handleMonthlyUpdate(
+                              month,
+                              "card",
+                              event.currentTarget.value
+                            )
+                          }
+                        />
+                      </Table.Td>
+                    );
+                  })}
+                </Table.Tr>
+
+                <Table.Tr>
+                  <Table.Td fw={600}>馬主</Table.Td>
+                  {visibleMonths.map(({ month }) => {
+                    const data = findMonthlyData(
+                      monthlySavings,
+                      displayYear,
+                      month
+                    );
+                    const draftKey = monthKey(displayYear, month);
+
+                    return (
+                      <Table.Td key={`horse-${month}`}>
+                        <Input
+                          value={
+                            horseClubInputs[draftKey] ??
+                            (data?.horse_club == null
+                              ? ""
+                              : String(data.horse_club))
+                          }
+                          size="xs"
+                          inputMode="decimal"
+                          placeholder="0"
+                          onChange={(event) =>
+                            handleHorseClubUpdate(
+                              month,
+                              event.currentTarget.value
+                            )
+                          }
+                        />
+                      </Table.Td>
+                    );
+                  })}
+                </Table.Tr>
+
+                <Table.Tr>
+                  <Table.Td fw={600}>友の会</Table.Td>
+                  {visibleMonths.map(({ month }) => {
+                    const data = findMonthlyData(
+                      monthlySavings,
+                      displayYear,
+                      month
+                    );
+
+                    return (
+                      <Table.Td key={`friend-${month}`}>
+                        <Input
+                          value={String(data?.friend_club ?? "")}
+                          size="xs"
+                          inputMode="numeric"
+                          placeholder="0"
+                          onChange={(event) =>
+                            handleMonthlyUpdate(
+                              month,
+                              "friend_club",
+                              event.currentTarget.value
+                            )
+                          }
+                        />
+                      </Table.Td>
+                    );
+                  })}
+                </Table.Tr>
+
+                <Table.Tr bg="blue.0" data-row="net">
+                  <Table.Td fw={700} c="blue">
+                    今月の収支
+                  </Table.Td>
+                  {visibleMonths.map(({ month }) => {
+                    const net = calculateMonthNet(
+                      settings,
+                      findMonthlyData(monthlySavings, displayYear, month)
+                    );
+
+                    return (
+                      <Table.Td
+                        key={`net-${month}`}
+                        style={{ textAlign: "center" }}
+                      >
+                        <Text
+                          fw={600}
+                          size="sm"
+                          c={net >= 0 ? "green" : "red"}
+                        >
+                          ¥{net.toLocaleString()}
+                        </Text>
+                      </Table.Td>
+                    );
+                  })}
+                </Table.Tr>
+
+                <Table.Tr bg="green.0" data-row="cumulative">
+                  <Table.Td fw={700} c="green.8">
+                    累計貯金額
+                  </Table.Td>
+                  {visibleMonths.map(({ month }) => {
+                    const cumulative = toSafeNumber(
+                      cumulativeByMonth[month]
+                    );
+
+                    return (
+                      <Table.Td
+                        key={`cumulative-${month}`}
+                        style={{ textAlign: "center" }}
+                      >
+                        <Text
+                          fw={700}
+                          size="sm"
+                          c={cumulative >= 0 ? "green" : "red"}
+                        >
+                          ¥{cumulative.toLocaleString()}
+                        </Text>
+                      </Table.Td>
+                    );
+                  })}
+                </Table.Tr>
+              </Table.Tbody>
+            </Table>
+          </div>
+        </Box>
       </Paper>
     </>
   );
@@ -650,14 +684,14 @@ export default function DashboardPage() {
           <title>ログインが必要です</title>
         </Head>
 
-        <Container size="sm" py={80}>
+        <Container size="sm" py={{ base: 40, md: 80 }} px="md">
           <Paper radius="lg" p="xl" withBorder>
             <Stack align="center" gap="md">
               <Title order={2}>ログインが必要です</Title>
               <Text c="dimmed" ta="center">
                 この画面は認証済みユーザーのみ利用できます。
               </Text>
-              <Button component={Link} href="/login" color="blue">
+              <Button component={Link} href="/login" color="blue" size="md" fullWidth>
                 ログイン画面へ
               </Button>
             </Stack>
@@ -678,34 +712,46 @@ export default function DashboardPage() {
         <title>貯金計算ダッシュボード</title>
       </Head>
 
-      <Container size="xl" py={40}>
+      <Container size="xl" py={{ base: 24, md: 40 }} px={{ base: "md", md: "lg" }}>
         <Stack gap="lg">
-          <Group justify="space-between" align="center">
-            <div>
+          <Group
+            justify="space-between"
+            align="flex-start"
+            wrap="wrap"
+            gap="md"
+          >
+            <div style={{ flex: 1, minWidth: 0 }}>
               <Text tt="uppercase" c="blue" fw={700} size="sm">
                 Saving dashboard
               </Text>
-              <Title order={1} mt={8}>
+              <Title order={1} mt={8} fz={{ base: 20, md: 34 }}>
                 貯金計算
               </Title>
             </div>
 
-            <Group>
-              <Button
-                component={Link}
-                href="/"
-                leftSection={<IconArrowLeft size={16} />}
-                variant="light"
-              >
-                ホームに戻る
-              </Button>
-
-              <SignOutButton>
-                <Button variant="filled" color="red">
-                  ログアウト
-                </Button>
-              </SignOutButton>
-            </Group>
+            <ResponsiveButtonGroup
+              items={[
+                {
+                  key: "home",
+                  label: "ホームに戻る",
+                  buttonProps: {
+                    component: Link,
+                    href: "/",
+                    leftSection: <IconArrowLeft size={16} />,
+                    variant: "light",
+                  },
+                },
+                {
+                  key: "logout",
+                  label: "ログアウト",
+                  buttonProps: {
+                    variant: "filled",
+                    color: "red",
+                  },
+                  wrap: (button) => <SignOutButton>{button}</SignOutButton>,
+                },
+              ]}
+            />
           </Group>
 
           <Alert>

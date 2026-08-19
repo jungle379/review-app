@@ -16,6 +16,7 @@ import {
 import { IconArrowLeft } from "@tabler/icons-react";
 import { fetchSettings, saveSettings } from "@/api/settings";
 import MantineLoader from "@/components/Loader";
+import ResponsiveButtonGroup from "@/components/ResponsiveButtonGroup";
 
 interface UserSettings {
   base_salary: string;
@@ -98,12 +99,8 @@ export default function SettingsPage() {
           <title>ログインが必要です</title>
         </Head>
 
-        <Container size="sm" py={80}>
-          <Paper
-            radius="lg"
-            p="xl"
-            withBorder
-          >
+        <Container size="sm" py={{ base: 40, md: 80 }} px="md">
+          <Paper radius="lg" p={{ base: "md", md: "xl" }} withBorder>
             <Stack
               align="center"
               gap="md"
@@ -218,46 +215,41 @@ export default function SettingsPage() {
         <title>設定</title>
       </Head>
 
-      <Container
-        size="sm"
-        py={40}
-      >
+      <Container size="sm" py={{ base: 24, md: 40 }} px="md">
         <Stack gap="lg">
-
-          {/* ================================
-              ヘッダー
-          ================================= */}
           <Group
             justify="space-between"
-            align="center"
+            align="flex-start"
+            wrap="wrap"
+            gap="md"
           >
-            <Title order={1}>
+            <Title order={1} fz={{ base: 28, md: 34 }}>
               設定
             </Title>
 
-            <Group>
-              <Button
-                component={Link}
-                href="/dashboard"
-                leftSection={
-                  <IconArrowLeft
-                    size={16}
-                  />
-                }
-                variant="light"
-              >
-                ダッシュボードに戻る
-              </Button>
-
-              <SignOutButton>
-                <Button
-                  variant="filled"
-                  color="red"
-                >
-                  ログアウト
-                </Button>
-              </SignOutButton>
-            </Group>
+            <ResponsiveButtonGroup
+              items={[
+                {
+                  key: "back",
+                  label: "ダッシュボードに戻る",
+                  buttonProps: {
+                    component: Link,
+                    href: "/dashboard",
+                    leftSection: <IconArrowLeft size={16} />,
+                    variant: "light",
+                  },
+                },
+                {
+                  key: "logout",
+                  label: "ログアウト",
+                  buttonProps: {
+                    variant: "filled",
+                    color: "red",
+                  },
+                  wrap: (button) => <SignOutButton>{button}</SignOutButton>,
+                },
+              ]}
+            />
           </Group>
 
           {/* ================================
@@ -286,11 +278,7 @@ export default function SettingsPage() {
           {/* ================================
               設定フォーム
           ================================= */}
-          <Paper
-            radius="lg"
-            p="lg"
-            withBorder
-          >
+          <Paper radius="lg" p={{ base: "md", md: "lg" }} withBorder>
             <Stack gap="lg">
 
               {/* ============================
@@ -354,23 +342,29 @@ export default function SettingsPage() {
               {/* ============================
                   ボタン
               ============================= */}
-              <Group justify="flex-end">
-                <Button
-                  variant="light"
-                  component={Link}
-                  href="/dashboard"
-                >
-                  キャンセル
-                </Button>
-
-                <Button
-                  onClick={handleSave}
-                  loading={isSaving}
-                  disabled={isLoading}
-                >
-                  保存
-                </Button>
-              </Group>
+              <ResponsiveButtonGroup
+                mobileCols={2}
+                items={[
+                  {
+                    key: "cancel",
+                    label: "キャンセル",
+                    buttonProps: {
+                      variant: "light",
+                      component: Link,
+                      href: "/dashboard",
+                    },
+                  },
+                  {
+                    key: "save",
+                    label: "保存",
+                    buttonProps: {
+                      onClick: handleSave,
+                      loading: isSaving,
+                      disabled: isLoading,
+                    },
+                  },
+                ]}
+              />
 
             </Stack>
           </Paper>

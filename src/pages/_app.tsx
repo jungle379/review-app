@@ -1,10 +1,25 @@
 import type { AppProps } from "next/app";
 import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
-import { MantineProvider } from "@mantine/core";
+import { createTheme, MantineProvider } from "@mantine/core";
 
 import "@mantine/core/styles.css";
 import "../styles/globals.css";
+
+const theme = createTheme({
+  components: {
+    Button: {
+      defaultProps: {
+        size: "md",
+      },
+    },
+    Input: {
+      defaultProps: {
+        size: "md",
+      },
+    },
+  },
+});
 
 export default function MyApp({
   Component,
@@ -19,7 +34,7 @@ export default function MyApp({
         },
       }}
     >
-      <MantineProvider defaultColorScheme="light">
+      <MantineProvider theme={theme} defaultColorScheme="light">
         <Component {...pageProps} />
       </MantineProvider>
     </ClerkProvider>

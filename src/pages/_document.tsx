@@ -4,9 +4,9 @@ export default function Document() {
   return (
     <Html lang="ja">
       <Head>
-        <link
-          rel="stylesheet"
-          href="https://cdn.rawgit.com/kimeiga/bahunya/css/bahunya-0.1.2.css"
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, viewport-fit=cover"
         />
       </Head>
       <body>
