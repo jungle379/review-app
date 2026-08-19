@@ -21,17 +21,34 @@ const Home: NextPage = () => {
                 <Text c="blue" fw={700} tt="uppercase" size="sm">
                   Saving Planner
                 </Text>
-                <Title order={1} size={42} mt={8}>
+                <Title order={1} size={36}>
                   毎月の収支を見える化して、貯金計画を作ろう
                 </Title>
               </div>
+              <Group>
+              {isLoaded && isSignedIn ? (
+                <>
+                  <SignOutButton>
+                    <Button variant="light" color="red">
+                      ログアウト
+                    </Button>
+                  </SignOutButton>
+                  <UserButton afterSignOutUrl="/" />
+                </>
+              ) : (
+                <SignInButton forceRedirectUrl="/dashboard">
+                  <Button size="lg" color="blue">
+                    はじめる
+                  </Button>
+                </SignInButton>
+              )}
+            </Group>
 
               {isLoaded && isSignedIn ? (
                 <Group gap="sm">
                   <Button component={Link} href="/dashboard" color="blue">
                     ダッシュボードへ
                   </Button>
-                  <UserButton afterSignOutUrl="/" />
                 </Group>
               ) : (
                 <SignInButton forceRedirectUrl="/dashboard">
@@ -44,26 +61,6 @@ const Home: NextPage = () => {
               残高、給与、家賃、火災保険、カード、馬主、友の会を一目で確認し、毎月の貯蓄額を計算できます。
             </Text>
 
-            <Group>
-              {isLoaded && isSignedIn ? (
-                <>
-                  <Button component={Link} href="/dashboard" size="lg" color="gray">
-                    貯金計算を開く
-                  </Button>
-                  <SignOutButton>
-                    <Button variant="light" color="red">
-                      ログアウト
-                    </Button>
-                  </SignOutButton>
-                </>
-              ) : (
-                <SignInButton forceRedirectUrl="/dashboard">
-                  <Button size="lg" color="blue">
-                    はじめる
-                  </Button>
-                </SignInButton>
-              )}
-            </Group>
           </Stack>
         </Paper>
       </Container>
