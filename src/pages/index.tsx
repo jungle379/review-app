@@ -42,7 +42,7 @@ const Home: NextPage = () => {
 
               {isLoaded && isSignedIn ? (
                 <Group gap="sm" visibleFrom="sm">
-                  <UserButton afterSignOutUrl="/" />
+                  <UserButton />
                 </Group>
               ) : null}
             </Group>

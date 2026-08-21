@@ -28,6 +28,7 @@ export default function MyApp({
 }: AppProps) {
   return (
     <ClerkProvider
+      afterSignOutUrl="/"
       appearance={{
         variables: {
           colorPrimary: "#1c7ed6",
