@@ -17,6 +17,7 @@ import { IconArrowLeft } from "@tabler/icons-react";
 import { fetchSettings, saveSettings } from "@/api/settings";
 import MantineLoader from "@/components/Loader";
 import ResponsiveButtonGroup from "@/components/ResponsiveButtonGroup";
+import { toast } from "sonner";
 
 interface UserSettings {
   base_salary: string;
@@ -33,7 +34,6 @@ export default function SettingsPage() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [message, setMessage] = useState("");
 
   // ========================================
   // 設定取得
@@ -46,7 +46,6 @@ export default function SettingsPage() {
     const loadSettings = async () => {
       try {
         setIsLoading(true);
-        setMessage("");
 
         const data = await fetchSettings(user.id);
 
@@ -69,7 +68,7 @@ export default function SettingsPage() {
           error
         );
 
-        setMessage(
+        toast.error(
           error instanceof Error
             ? error.message
             : "設定の取得に失敗しました"
@@ -160,14 +159,11 @@ export default function SettingsPage() {
     }
 
     if (!user?.id) {
-      setMessage(
-        "ユーザー情報を取得できませんでした"
-      );
+      toast.error("ユーザー情報を取得できませんでした");
       return;
     }
 
     setIsSaving(true);
-    setMessage("");
 
     try {
       const data = await saveSettings(user.id, {
@@ -187,16 +183,14 @@ export default function SettingsPage() {
             : "",
       });
 
-      setMessage(
-        "設定を保存しました"
-      );
+      toast.success("設定を保存しました");
     } catch (error) {
       console.error(
         "設定保存エラー:",
         error
       );
 
-      setMessage(
+      toast.error(
         error instanceof Error
           ? error.message
           : "設定の保存に失敗しました"
@@ -256,24 +250,10 @@ export default function SettingsPage() {
               説明
           ================================= */}
           <Alert>
-            毎月の固定値を設定します。
-            変動する項目はダッシュボードで入力できます。
+            毎月の固定値（基本給与・家賃の初期値）を設定します。
+            家賃・賞与など変動する項目はダッシュボードで月ごとに入力・訂正できます。
+            給与は毎年11月から2万円加算されます。
           </Alert>
-
-          {/* ================================
-              メッセージ
-          ================================= */}
-          {message && (
-            <Alert
-              color={
-                message.includes("失敗")
-                  ? "red"
-                  : "green"
-              }
-            >
-              {message}
-            </Alert>
-          )}
 
           {/* ================================
               設定フォーム
@@ -297,8 +277,7 @@ export default function SettingsPage() {
                   size="sm"
                   mb="md"
                 >
-                  毎月の基本給与を入力してください。
-                  ¥で表記します。
+                  毎月の基本給与です。ダッシュボードでは毎年11月から2万円加算して計算されます。
                 </Text>
 
                 <Input
@@ -326,8 +305,7 @@ export default function SettingsPage() {
                   size="sm"
                   mb="md"
                 >
-                  毎月の家賃（固定値）を
-                  入力してください。
+                  家賃の初期値です。ダッシュボードで月ごとに訂正できます。
                 </Text>
 
                 <Input

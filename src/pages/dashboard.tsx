@@ -22,11 +22,11 @@ import {
 
 import {
   IconArrowLeft,
+  IconCalendarStats,
   IconChevronLeft,
   IconChevronRight,
   IconPigMoney,
-  IconReceipt,
-  IconTrash,
+  IconWallet,
   IconSettings,
 } from "@tabler/icons-react";
 
@@ -36,13 +36,15 @@ import { fetchSettings } from "@/api/settings";
 
 import {
   PLAN_START_YEAR,
-  calculateCumulativeByMonth,
-  calculateCumulativeThrough,
+  calculateMonthEndByMonth,
+  calculateMonthEndThrough,
   calculateMonthNet,
+  calculateYearEndSavings,
   emptyMonthlyData,
   findMonthlyData,
   getCurrentPlanningMonth,
   getMonthsForYear,
+  getSalaryForMonth,
   isValidSignedNumericInput,
   monthKey,
   normalizeMonthlyData,
@@ -56,20 +58,17 @@ import {
 import Loader from "@/components/Loader";
 import MonthlySavingsMobile from "@/components/MonthlySavingsMobile";
 import ResponsiveButtonGroup from "@/components/ResponsiveButtonGroup";
+import { toast } from "sonner";
 
 function DashboardContent({
   isSaving,
   setIsSaving,
-  message,
-  setMessage,
   userName,
   userEmail,
   userId,
 }: {
   isSaving: boolean;
   setIsSaving: React.Dispatch<React.SetStateAction<boolean>>;
-  message: string;
-  setMessage: React.Dispatch<React.SetStateAction<string>>;
   userName: string;
   userEmail: string;
   userId?: string;
@@ -100,9 +99,9 @@ function DashboardContent({
 
   const startingSavings = parseSignedNumericInput(startingSavingsInput);
 
-  const cumulativeByMonth = useMemo(
+  const monthEndByMonth = useMemo(
     () =>
-      calculateCumulativeByMonth(
+      calculateMonthEndByMonth(
         startingSavings,
         settings,
         monthlySavings,
@@ -115,6 +114,8 @@ function DashboardContent({
     () =>
       calculateMonthNet(
         settings,
+        planningMonth.year,
+        planningMonth.month,
         findMonthlyData(
           monthlySavings,
           planningMonth.year,
@@ -124,9 +125,9 @@ function DashboardContent({
     [settings, monthlySavings, planningMonth]
   );
 
-  const cumulativeSavings = useMemo(
+  const currentMonthEndSavings = useMemo(
     () =>
-      calculateCumulativeThrough(
+      calculateMonthEndThrough(
         startingSavings,
         settings,
         monthlySavings,
@@ -134,6 +135,17 @@ function DashboardContent({
         planningMonth.month
       ),
     [startingSavings, settings, monthlySavings, planningMonth]
+  );
+
+  const displayYearEndSavings = useMemo(
+    () =>
+      calculateYearEndSavings(
+        startingSavings,
+        settings,
+        monthlySavings,
+        displayYear
+      ),
+    [startingSavings, settings, monthlySavings, displayYear]
   );
 
   useEffect(() => {
@@ -172,7 +184,7 @@ function DashboardContent({
         setHorseClubInputs({});
       } catch (error) {
         console.error("データ取得エラー:", error);
-        setMessage(
+        toast.error(
           error instanceof Error
             ? error.message
             : "データの取得に失敗しました"
@@ -189,7 +201,7 @@ function DashboardContent({
     return () => {
       isMounted = false;
     };
-  }, [userId, setMessage]);
+  }, [userId]);
 
   const handleMonthlyUpdate = (
     month: number,
@@ -203,13 +215,18 @@ function DashboardContent({
       month
     );
     const updatedData: MonthlySavings = {
-      ...(existingData ?? emptyMonthlyData(displayYear, month)),
+      ...(existingData ?? emptyMonthlyData(displayYear, month, settings)),
       year: displayYear,
       month,
       [field]: numericValue,
     };
 
-    updatedData.balance = calculateMonthNet(settings, updatedData);
+    updatedData.balance = calculateMonthNet(
+      settings,
+      displayYear,
+      month,
+      updatedData
+    );
 
     setMonthlySavings((previous) =>
       [
@@ -255,7 +272,6 @@ function DashboardContent({
     const resolvedUserId = userId || userName || "local-user";
 
     setIsSaving(true);
-    setMessage("");
 
     try {
       await saveStartingSavings(resolvedUserId, startingSavings);
@@ -264,10 +280,10 @@ function DashboardContent({
         await saveMonthlySavings(resolvedUserId, monthlySavings);
       }
 
-      setMessage("保存しました。");
+      toast.success("保存しました");
     } catch (error) {
       console.error("保存エラー:", error);
-      setMessage(
+      toast.error(
         error instanceof Error ? error.message : "保存に失敗しました"
       );
     } finally {
@@ -278,6 +294,7 @@ function DashboardContent({
   const handleReset = () => {
     setStartingSavingsInput("");
     setHorseClubInputs({});
+    toast.message("入力をリセットしました");
   };
 
   if (isLoadingSettings) {
@@ -286,7 +303,7 @@ function DashboardContent({
 
   return (
     <>
-      <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="lg">
+      <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="lg">
         <Card radius="lg" p={{ base: "md", md: "lg" }} withBorder>
           <Group justify="space-between">
             <Text fw={600}>今月の収支</Text>
@@ -301,22 +318,38 @@ function DashboardContent({
             {planningMonth.year}年{planningMonth.month}月
           </Text>
           <Text c="dimmed" size="xs" visibleFrom="sm">
-            給与 - 家賃 - 火災保険 - カード - 友の会 - 馬主
+            給与 + 賞与 - 家賃 - 諸経費
           </Text>
         </Card>
 
         <Card radius="lg" p={{ base: "md", md: "lg" }} withBorder>
           <Group justify="space-between">
-            <Text fw={600}>累計貯金額（見積もり）</Text>
-            <IconReceipt size={20} color="#2f9e44" />
+            <Text fw={600}>今月末の貯金額</Text>
+            <IconWallet size={20} color="#2f9e44" />
           </Group>
 
           <Title order={2} mt="sm" fz={{ base: 24, md: 32 }}>
-            ¥{toSafeNumber(cumulativeSavings).toLocaleString()}
+            ¥{toSafeNumber(currentMonthEndSavings).toLocaleString()}
           </Title>
 
           <Text c="dimmed" size="sm">
-            2026年8月の開始額 + 各月の収支
+            開始残高 + 各月の収支（〜
+            {planningMonth.year}年{planningMonth.month}月）
+          </Text>
+        </Card>
+
+        <Card radius="lg" p={{ base: "md", md: "lg" }} withBorder>
+          <Group justify="space-between">
+            <Text fw={600}>年末の貯金額</Text>
+            <IconCalendarStats size={20} color="#e67700" />
+          </Group>
+
+          <Title order={2} mt="sm" fz={{ base: 24, md: 32 }}>
+            ¥{toSafeNumber(displayYearEndSavings).toLocaleString()}
+          </Title>
+
+          <Text c="dimmed" size="sm">
+            {displayYear}年12月末時点の見積もり
           </Text>
         </Card>
 
@@ -325,7 +358,7 @@ function DashboardContent({
             <Text fw={600}>利用ユーザー</Text>
           </Group>
 
-          <Title order={2} mt="sm">
+          <Title order={2} mt="sm" fz={{ base: 20, md: 24 }}>
             {userName}
           </Title>
 
@@ -340,7 +373,7 @@ function DashboardContent({
           開始貯金額
         </Title>
         <Text c="dimmed" size="sm" mt="xs" mb="md">
-          2026年8月から貯金計画を開始します。開始時点の貯金額を入力すると、毎月の収支を足した累計見積もりが計算されます。
+          2026年8月時点の残高です。各月の収支を足したものが月末・年末の貯金額になります。給与は毎年11月から2万円加算されます。
         </Text>
 
         <Input
@@ -416,11 +449,9 @@ function DashboardContent({
 
         {displayYear === PLAN_START_YEAR ? (
           <Alert mb="lg">
-            この計画は2026年8月から開始します。1月から7月は表示しません。
+            この計画は2026年8月から開始します。1月から7月は表示しません。給与は毎年11月から2万円加算されます。
           </Alert>
         ) : null}
-
-        {message ? <Alert mb="lg">{message}</Alert> : null}
 
         <Box hiddenFrom="md">
           <MonthlySavingsMobile
@@ -429,7 +460,7 @@ function DashboardContent({
             settings={settings}
             monthlySavings={monthlySavings}
             horseClubInputs={horseClubInputs}
-            cumulativeByMonth={cumulativeByMonth}
+            monthEndByMonth={monthEndByMonth}
             onMonthlyUpdate={(month, field, value) =>
               handleMonthlyUpdate(month, field, value)
             }
@@ -466,7 +497,12 @@ function DashboardContent({
                       style={{ textAlign: "center" }}
                     >
                       <Text size="sm">
-                        ¥{toSafeNumber(settings.base_salary).toLocaleString()}
+                        ¥
+                        {getSalaryForMonth(
+                          settings.base_salary,
+                          displayYear,
+                          month
+                        ).toLocaleString()}
                       </Text>
                     </Table.Td>
                   ))}
@@ -474,16 +510,64 @@ function DashboardContent({
 
                 <Table.Tr>
                   <Table.Td fw={600}>家賃</Table.Td>
-                  {visibleMonths.map(({ month }) => (
-                    <Table.Td
-                      key={`rent-${month}`}
-                      style={{ textAlign: "center" }}
-                    >
-                      <Text size="sm">
-                        ¥{toSafeNumber(settings.rent).toLocaleString()}
-                      </Text>
-                    </Table.Td>
-                  ))}
+                  {visibleMonths.map(({ month }) => {
+                    const data = findMonthlyData(
+                      monthlySavings,
+                      displayYear,
+                      month
+                    );
+
+                    return (
+                      <Table.Td key={`rent-${month}`}>
+                        <Input
+                          value={
+                            data?.rent === null || data?.rent === undefined
+                              ? String(settings.rent || "")
+                              : String(data.rent)
+                          }
+                          size="xs"
+                          inputMode="numeric"
+                          placeholder={String(settings.rent || 0)}
+                          onChange={(event) =>
+                            handleMonthlyUpdate(
+                              month,
+                              "rent",
+                              event.currentTarget.value
+                            )
+                          }
+                        />
+                      </Table.Td>
+                    );
+                  })}
+                </Table.Tr>
+
+                <Table.Tr>
+                  <Table.Td fw={600}>賞与</Table.Td>
+                  {visibleMonths.map(({ month }) => {
+                    const data = findMonthlyData(
+                      monthlySavings,
+                      displayYear,
+                      month
+                    );
+
+                    return (
+                      <Table.Td key={`bonus-${month}`}>
+                        <Input
+                          value={String(data?.bonus ?? "")}
+                          size="xs"
+                          inputMode="numeric"
+                          placeholder="0"
+                          onChange={(event) =>
+                            handleMonthlyUpdate(
+                              month,
+                              "bonus",
+                              event.currentTarget.value
+                            )
+                          }
+                        />
+                      </Table.Td>
+                    );
+                  })}
                 </Table.Tr>
 
                 <Table.Tr>
@@ -614,6 +698,8 @@ function DashboardContent({
                   {visibleMonths.map(({ month }) => {
                     const net = calculateMonthNet(
                       settings,
+                      displayYear,
+                      month,
                       findMonthlyData(monthlySavings, displayYear, month)
                     );
 
@@ -636,24 +722,22 @@ function DashboardContent({
 
                 <Table.Tr bg="green.0" data-row="cumulative">
                   <Table.Td fw={700} c="green.8">
-                    累計貯金額
+                    月末貯金額
                   </Table.Td>
                   {visibleMonths.map(({ month }) => {
-                    const cumulative = toSafeNumber(
-                      cumulativeByMonth[month]
-                    );
+                    const monthEnd = toSafeNumber(monthEndByMonth[month]);
 
                     return (
                       <Table.Td
-                        key={`cumulative-${month}`}
+                        key={`month-end-${month}`}
                         style={{ textAlign: "center" }}
                       >
                         <Text
                           fw={700}
                           size="sm"
-                          c={cumulative >= 0 ? "green" : "red"}
+                          c={monthEnd >= 0 ? "green" : "red"}
                         >
-                          ¥{cumulative.toLocaleString()}
+                          ¥{monthEnd.toLocaleString()}
                         </Text>
                       </Table.Td>
                     );
@@ -671,7 +755,6 @@ function DashboardContent({
 export default function DashboardPage() {
   const { user, isLoaded, isSignedIn } = useUser();
   const [isSaving, setIsSaving] = useState(false);
-  const [message, setMessage] = useState("");
 
   if (!isLoaded) {
     return <Loader />;
@@ -755,15 +838,12 @@ export default function DashboardPage() {
           </Group>
 
           <Alert>
-            2026年8月から毎月の収支と累計貯金額を見積もれます。Clerk
-            のログイン状態でデータが保持されます。
+            2026年8月から毎月の収支・月末貯金額・年末貯金額を見積もれます。給与は毎年11月から2万円加算されます。
           </Alert>
 
           <DashboardContent
             isSaving={isSaving}
             setIsSaving={setIsSaving}
-            message={message}
-            setMessage={setMessage}
             userName={userName}
             userEmail={userEmail}
             userId={userId}

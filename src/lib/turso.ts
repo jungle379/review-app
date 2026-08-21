@@ -60,6 +60,8 @@ export async function ensureSavingsTable() {
       user_id TEXT NOT NULL,
       year INTEGER NOT NULL,
       month INTEGER NOT NULL,
+      rent REAL,
+      bonus REAL NOT NULL DEFAULT 0,
       card REAL NOT NULL DEFAULT 0,
       horse_club REAL NOT NULL DEFAULT 0,
       friend_club REAL NOT NULL DEFAULT 0,
@@ -70,27 +72,41 @@ export async function ensureSavingsTable() {
     )
   `);
 
-  // 既に monthly_savings が存在している場合、
-  // CREATE TABLE IF NOT EXISTS では fire_insurance が追加されないため、
-  // カラムの存在を確認して必要なら追加する。
-  try {
-    await tursoClient.execute(`
-      ALTER TABLE monthly_savings
-      ADD COLUMN fire_insurance REAL NOT NULL DEFAULT 0
-    `);
-  } catch (error) {
-    // 既に存在している場合は無視
-    const message =
-      error instanceof Error ? error.message : String(error);
+  // 既存テーブルへのカラム追加（既にある場合は無視）
+  const optionalColumns: Array<{ name: string; sql: string }> = [
+    {
+      name: "fire_insurance",
+      sql: "ADD COLUMN fire_insurance REAL NOT NULL DEFAULT 0",
+    },
+    {
+      name: "rent",
+      sql: "ADD COLUMN rent REAL",
+    },
+    {
+      name: "bonus",
+      sql: "ADD COLUMN bonus REAL NOT NULL DEFAULT 0",
+    },
+  ];
 
-    if (
-      !message.includes("duplicate column") &&
-      !message.includes("duplicate column name")
-    ) {
-      console.error(
-        "monthly_savings.fire_insurance の確認中にエラー:",
-        error
-      );
+  for (const column of optionalColumns) {
+    try {
+      await tursoClient.execute(`
+        ALTER TABLE monthly_savings
+        ${column.sql}
+      `);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : String(error);
+
+      if (
+        !message.includes("duplicate column") &&
+        !message.includes("duplicate column name")
+      ) {
+        console.error(
+          `monthly_savings.${column.name} の確認中にエラー:`,
+          error
+        );
+      }
     }
   }
 }
@@ -272,6 +288,8 @@ function mapMonthlyRow(row: unknown): MonthlySavings {
   const r = row as {
     year: number | string;
     month: number | string;
+    rent: number | string;
+    bonus: number | string;
     card: number | string;
     horse_club: number | string;
     friend_club: number | string;
@@ -282,6 +300,8 @@ function mapMonthlyRow(row: unknown): MonthlySavings {
   return {
     year: Number(r.year ?? 0),
     month: Number(r.month ?? 0),
+    rent: r.rent === null || r.rent === undefined ? null : Number(r.rent),
+    bonus: Number(r.bonus ?? 0),
     card: Number(r.card ?? 0),
     horse_club: Number(r.horse_club ?? 0),
     friend_club: Number(r.friend_club ?? 0),
@@ -306,6 +326,8 @@ export async function getMonthlySavingsForUser(
       SELECT
         year,
         month,
+        rent,
+        bonus,
         card,
         horse_club,
         friend_club,
@@ -339,6 +361,8 @@ export async function getMonthlySavingsFrom(
       SELECT
         year,
         month,
+        rent,
+        bonus,
         card,
         horse_club,
         friend_club,
@@ -372,6 +396,8 @@ export async function saveMonthlySavings(
         user_id,
         year,
         month,
+        rent,
+        bonus,
         card,
         horse_club,
         friend_club,
@@ -379,9 +405,11 @@ export async function saveMonthlySavings(
         balance,
         updated_at
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
 
       ON CONFLICT(user_id, year, month) DO UPDATE SET
+        rent = excluded.rent,
+        bonus = excluded.bonus,
         card = excluded.card,
         horse_club = excluded.horse_club,
         friend_club = excluded.friend_club,
@@ -393,6 +421,10 @@ export async function saveMonthlySavings(
       userId,
       Number(data.year),
       Number(data.month),
+      data.rent === null || data.rent === undefined
+        ? null
+        : Number(data.rent),
+      Number(data.bonus ?? 0),
       Number(data.card ?? 0),
       Number(data.horse_club ?? 0),
       Number(data.friend_club ?? 0),

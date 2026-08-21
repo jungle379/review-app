@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint ."
   },
   "dependencies": {
     "@clerk/nextjs": "^7.7.8",
@@ -16,16 +16,22 @@
     "@mantine/hooks": "^7.15.0",
     "@mantine/notifications": "^7.15.0",
     "@tabler/icons-react": "^3.30.0",
-    "next": "14.2.15",
-    "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "next": "16.3.2",
+    "next-themes": "^0.4.6",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "sonner": "^2.0.8"
   },
   "devDependencies": {
     "@types/node": "20.14.12",
-    "@types/react": "18.3.3",
-    "@types/react-dom": "18.3.0",
-    "eslint": "8.57.0",
-    "eslint-config-next": "14.2.15",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
+    "eslint": "10.8.1",
+    "eslint-config-next": "16.3.2",
     "typescript": "5.5.4"
+  },
+  "overrides": {
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4"
   }
 }

@@ -1,5 +1,7 @@
 export const PLAN_START_YEAR = 2026;
 export const PLAN_START_MONTH = 8;
+export const ANNUAL_SALARY_RAISE = 20000;
+export const SALARY_RAISE_MONTH = 11;
 
 export type SavingsValues = {
   balance: number;
@@ -19,6 +21,9 @@ export type UserSettings = {
 export type MonthlySavings = {
   year: number;
   month: number;
+  /** null のときは設定の家賃を使う */
+  rent: number | null;
+  bonus: number;
   card: number;
   horse_club: number;
   friend_club: number;
@@ -116,13 +121,58 @@ export function getMonthsForYear(year: number): MonthColumn[] {
   }));
 }
 
-export function calculateMonthNet(
+/**
+ * 基本給与に対し、毎年11月から2万円ずつ加算した給与を返す。
+ * 例: 2026/8〜10 → 基本給、2026/11〜2027/10 → 基本給+2万、2027/11〜 → 基本給+4万
+ */
+export function getSalaryForMonth(
+  baseSalary: number,
+  year: number,
+  month: number
+): number {
+  let raises = 0;
+
+  for (let y = PLAN_START_YEAR; y <= year; y += 1) {
+    const raiseApplies =
+      y < year || (y === year && month >= SALARY_RAISE_MONTH);
+
+    if (!raiseApplies) {
+      continue;
+    }
+
+    if (y > PLAN_START_YEAR || PLAN_START_MONTH <= SALARY_RAISE_MONTH) {
+      raises += 1;
+    }
+  }
+
+  return toSafeNumber(baseSalary) + raises * ANNUAL_SALARY_RAISE;
+}
+
+export function getEffectiveRent(
   settings: UserSettings,
   data?: Partial<MonthlySavings> | null
 ): number {
+  if (data && data.rent !== undefined && data.rent !== null) {
+    return toSafeNumber(data.rent);
+  }
+
+  return toSafeNumber(settings.rent);
+}
+
+export function calculateMonthNet(
+  settings: UserSettings,
+  year: number,
+  month: number,
+  data?: Partial<MonthlySavings> | null
+): number {
+  const salary = getSalaryForMonth(settings.base_salary, year, month);
+  const rent = getEffectiveRent(settings, data);
+  const bonus = toSafeNumber(data?.bonus);
+
   return (
-    toSafeNumber(settings.base_salary) -
-    toSafeNumber(settings.rent) -
+    salary +
+    bonus -
+    rent -
     toSafeNumber(data?.fire_insurance) -
     toSafeNumber(data?.card) -
     toSafeNumber(data?.horse_club) -
@@ -141,10 +191,10 @@ export function findMonthlyData(
 }
 
 /**
- * 開始貯金額から各月末の累計を算出する。
- * 未入力月は給与・家賃のみで見積もる。
+ * 開始貯金額から各月末の貯金額を算出する。
+ * 未入力月は給与・家賃（設定値）のみで見積もる。
  */
-export function calculateCumulativeByMonth(
+export function calculateMonthEndByMonth(
   startingSavings: number,
   settings: UserSettings,
   monthlyList: MonthlySavings[],
@@ -158,7 +208,7 @@ export function calculateCumulativeByMonth(
 
     for (const { month } of months) {
       const data = findMonthlyData(monthlyList, year, month);
-      runningTotal += calculateMonthNet(settings, data);
+      runningTotal += calculateMonthNet(settings, year, month, data);
 
       if (year === displayYear) {
         result[month] = runningTotal;
@@ -169,7 +219,7 @@ export function calculateCumulativeByMonth(
   return result;
 }
 
-export function calculateCumulativeThrough(
+export function calculateMonthEndThrough(
   startingSavings: number,
   settings: UserSettings,
   monthlyList: MonthlySavings[],
@@ -187,11 +237,30 @@ export function calculateCumulativeThrough(
       }
 
       const data = findMonthlyData(monthlyList, year, month);
-      runningTotal += calculateMonthNet(settings, data);
+      runningTotal += calculateMonthNet(settings, year, month, data);
     }
   }
 
   return runningTotal;
+}
+
+/** 指定年の12月末（計画開始前の年は開始月以降のみ）時点の貯金額 */
+export function calculateYearEndSavings(
+  startingSavings: number,
+  settings: UserSettings,
+  monthlyList: MonthlySavings[],
+  year: number
+): number {
+  const months = getMonthsForYear(year);
+  const lastMonth = months[months.length - 1]?.month ?? 12;
+
+  return calculateMonthEndThrough(
+    startingSavings,
+    settings,
+    monthlyList,
+    year,
+    lastMonth
+  );
 }
 
 export function calculateMonthlyNet(data: SavingsValues) {
@@ -228,6 +297,11 @@ export function normalizeMonthlyData(
   return {
     year: toSafeNumber(data?.year ?? year),
     month: toSafeNumber(data?.month ?? month),
+    rent:
+      data?.rent !== undefined && data?.rent !== null
+        ? toSafeNumber(data.rent)
+        : null,
+    bonus: toSafeNumber(data?.bonus),
     fire_insurance: toSafeNumber(
       data?.fire_insurance ?? data?.fire_Insurace
     ),
@@ -240,11 +314,14 @@ export function normalizeMonthlyData(
 
 export function emptyMonthlyData(
   year: number,
-  month: number
+  month: number,
+  settings?: UserSettings
 ): MonthlySavings {
   return {
     year,
     month,
+    rent: settings ? toSafeNumber(settings.rent) : null,
+    bonus: 0,
     card: 0,
     horse_club: 0,
     friend_club: 0,

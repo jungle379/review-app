@@ -9,6 +9,7 @@ import {
 import {
   calculateMonthNet,
   findMonthlyData,
+  getSalaryForMonth,
   monthKey,
   toSafeNumber,
   type MonthColumn,
@@ -22,7 +23,7 @@ type MonthlySavingsMobileProps = {
   settings: UserSettings;
   monthlySavings: MonthlySavings[];
   horseClubInputs: Record<string, string>;
-  cumulativeByMonth: Record<number, number>;
+  monthEndByMonth: Record<number, number>;
   onMonthlyUpdate: (
     month: number,
     field: keyof Omit<MonthlySavings, "year" | "month" | "balance">,
@@ -37,7 +38,7 @@ export default function MonthlySavingsMobile({
   settings,
   monthlySavings,
   horseClubInputs,
-  cumulativeByMonth,
+  monthEndByMonth,
   onMonthlyUpdate,
   onHorseClubUpdate,
 }: MonthlySavingsMobileProps) {
@@ -45,9 +46,14 @@ export default function MonthlySavingsMobile({
     <Stack gap="md">
       {visibleMonths.map(({ month, label }) => {
         const data = findMonthlyData(monthlySavings, displayYear, month);
-        const net = calculateMonthNet(settings, data);
-        const cumulative = toSafeNumber(cumulativeByMonth[month]);
+        const net = calculateMonthNet(settings, displayYear, month, data);
+        const monthEnd = toSafeNumber(monthEndByMonth[month]);
         const draftKey = monthKey(displayYear, month);
+        const salary = getSalaryForMonth(
+          settings.base_salary,
+          displayYear,
+          month
+        );
 
         return (
           <Card key={month} radius="md" p="md" withBorder>
@@ -55,26 +61,51 @@ export default function MonthlySavingsMobile({
               {displayYear}年{label}
             </Title>
 
-            <SimpleGrid cols={2} spacing="xs" mb="sm">
+            <Stack gap="xs">
               <div>
-                <Text size="xs" c="dimmed">
+                <Text size="xs" c="dimmed" mb={4}>
                   給与
+                  {month === 11 ? "（11月加算込み）" : ""}
                 </Text>
                 <Text size="sm" fw={500}>
-                  ¥{toSafeNumber(settings.base_salary).toLocaleString()}
+                  ¥{salary.toLocaleString()}
                 </Text>
               </div>
+
               <div>
-                <Text size="xs" c="dimmed">
+                <Text size="xs" c="dimmed" mb={4}>
                   家賃
                 </Text>
-                <Text size="sm" fw={500}>
-                  ¥{toSafeNumber(settings.rent).toLocaleString()}
-                </Text>
+                <Input
+                  value={
+                    data?.rent === null || data?.rent === undefined
+                      ? String(settings.rent || "")
+                      : String(data.rent)
+                  }
+                  size="sm"
+                  inputMode="numeric"
+                  placeholder={String(settings.rent || 0)}
+                  onChange={(event) =>
+                    onMonthlyUpdate(month, "rent", event.currentTarget.value)
+                  }
+                />
               </div>
-            </SimpleGrid>
 
-            <Stack gap="xs">
+              <div>
+                <Text size="xs" c="dimmed" mb={4}>
+                  賞与
+                </Text>
+                <Input
+                  value={String(data?.bonus ?? "")}
+                  size="sm"
+                  inputMode="numeric"
+                  placeholder="0"
+                  onChange={(event) =>
+                    onMonthlyUpdate(month, "bonus", event.currentTarget.value)
+                  }
+                />
+              </div>
+
               <div>
                 <Text size="xs" c="dimmed" mb={4}>
                   火災保険
@@ -104,11 +135,7 @@ export default function MonthlySavingsMobile({
                   inputMode="numeric"
                   placeholder="0"
                   onChange={(event) =>
-                    onMonthlyUpdate(
-                      month,
-                      "card",
-                      event.currentTarget.value
-                    )
+                    onMonthlyUpdate(month, "card", event.currentTarget.value)
                   }
                 />
               </div>
@@ -162,14 +189,14 @@ export default function MonthlySavingsMobile({
               </div>
               <div>
                 <Text size="xs" c="dimmed">
-                  累計貯金額
+                  月末貯金額
                 </Text>
                 <Text
                   size="sm"
                   fw={700}
-                  c={cumulative >= 0 ? "green" : "red"}
+                  c={monthEnd >= 0 ? "green" : "red"}
                 >
-                  ¥{cumulative.toLocaleString()}
+                  ¥{monthEnd.toLocaleString()}
                 </Text>
               </div>
             </SimpleGrid>

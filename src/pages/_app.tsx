@@ -2,6 +2,7 @@ import type { AppProps } from "next/app";
 import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
 import { createTheme, MantineProvider } from "@mantine/core";
+import { Toaster } from "sonner";
 
 import "@mantine/core/styles.css";
 import "../styles/globals.css";
@@ -28,7 +29,6 @@ export default function MyApp({
   return (
     <ClerkProvider
       appearance={{
-        baseTheme: dark,
         variables: {
           colorPrimary: "#1c7ed6",
         },
@@ -36,6 +36,14 @@ export default function MyApp({
     >
       <MantineProvider theme={theme} defaultColorScheme="light">
         <Component {...pageProps} />
+        <Toaster
+          position="top-center"
+          richColors
+          closeButton
+          toastOptions={{
+            duration: 3500,
+          }}
+        />
       </MantineProvider>
     </ClerkProvider>
   );
