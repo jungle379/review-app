@@ -23,7 +23,7 @@ interface UserSettings {
   base_salary: string;
   rent: string;
 }
-
+// 設定ページ
 export default function SettingsPage() {
   const { user, isLoaded, isSignedIn } = useUser();
 
@@ -252,7 +252,6 @@ export default function SettingsPage() {
           <Alert>
             毎月の固定値（基本給与・家賃の初期値）を設定します。
             家賃・賞与など変動する項目はダッシュボードで月ごとに入力・訂正できます。
-            給与は毎年11月から2万円加算されます。
           </Alert>
 
           {/* ================================

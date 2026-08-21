@@ -1,6 +1,5 @@
 import type { AppProps } from "next/app";
 import { ClerkProvider } from "@clerk/nextjs";
-import { dark } from "@clerk/themes";
 import { createTheme, MantineProvider } from "@mantine/core";
 import { Toaster } from "sonner";
 

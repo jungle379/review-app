@@ -1,11 +1,12 @@
+import { Box } from "@mantine/core";
 import { FC } from "react";
 
 const Header: FC = () => {
   return (
     <>
-      <div className="h-[200px] sm:h-[50px] my-10 sm:my-2 text-8xl sm:text-2xl flex justify-center">
+      <Box h={{ base: 50, sm: 200 }} my={{ base: 2, sm: 10 }} fz={{ base: 24, sm: 80 }} display="flex">
         Saving Planner
-      </div>
+      </Box>
     </>
   );
 };

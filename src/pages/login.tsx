@@ -18,9 +18,6 @@ export default function LoginPage() {
             <Title order={2} ta="center" fz={{ base: 22, md: 28 }}>
               貯金計算アプリにログイン
             </Title>
-            <Text c="dimmed" ta="center" size="sm">
-              Clerk 認証でログイン後、ダッシュボードで収支を管理できます。
-            </Text>
 
             {isLoaded && isSignedIn ? (
               <>

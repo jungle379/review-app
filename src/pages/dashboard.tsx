@@ -60,6 +60,7 @@ import MonthlySavingsMobile from "@/components/MonthlySavingsMobile";
 import ResponsiveButtonGroup from "@/components/ResponsiveButtonGroup";
 import { toast } from "sonner";
 
+// ダッシュボードのコンテンツ
 function DashboardContent({
   isSaving,
   setIsSaving,
@@ -203,6 +204,7 @@ function DashboardContent({
     };
   }, [userId]);
 
+  // 月別収支表の更新処理
   const handleMonthlyUpdate = (
     month: number,
     field: keyof Omit<MonthlySavings, "year" | "month" | "balance">,
@@ -373,7 +375,7 @@ function DashboardContent({
           開始貯金額
         </Title>
         <Text c="dimmed" size="sm" mt="xs" mb="md">
-          2026年8月時点の残高です。各月の収支を足したものが月末・年末の貯金額になります。給与は毎年11月から2万円加算されます。
+          2026年8月時点の残高です。各月の収支を足したものが月末・年末の貯金額になります。
         </Text>
 
         <Input
@@ -449,7 +451,7 @@ function DashboardContent({
 
         {displayYear === PLAN_START_YEAR ? (
           <Alert mb="lg">
-            この計画は2026年8月から開始します。1月から7月は表示しません。給与は毎年11月から2万円加算されます。
+            この計画は2026年8月から開始します。1月から7月は表示しません。
           </Alert>
         ) : null}
 
@@ -838,9 +840,8 @@ export default function DashboardPage() {
           </Group>
 
           <Alert>
-            2026年8月から毎月の収支・月末貯金額・年末貯金額を見積もれます。給与は毎年11月から2万円加算されます。
-          </Alert>
-
+            2026年8月から毎月の収支・月末貯金額・年末貯金額を見積もれます。
+          </Alert>  
           <DashboardContent
             isSaving={isSaving}
             setIsSaving={setIsSaving}
