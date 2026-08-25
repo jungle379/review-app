@@ -104,7 +104,10 @@ export function getCurrentPlanningMonth(now = new Date()) {
     };
   }
 
-  return { year, month };
+  return {
+    year,
+    month,
+  };
 }
 
 export function getMonthsForYear(year: number): MonthColumn[] {

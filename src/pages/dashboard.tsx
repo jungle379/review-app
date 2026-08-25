@@ -74,7 +74,8 @@ function DashboardContent({
   userEmail: string;
   userId?: string;
 }) {
-  const planningMonth = useMemo(() => getCurrentPlanningMonth(), []);
+  // 現在の計画年月を取得
+  const planningMonth = getCurrentPlanningMonth();
 
   // ユーザー設定
   const [settings, setSettings] = useState<UserSettings>({
@@ -393,7 +394,7 @@ function DashboardContent({
           開始貯金額
         </Title>
         <Text c="dimmed" size="sm" mt="xs" mb="md">
-          2026年8月時点の残高です。各月の収支を足したものが月末・年末の貯金額になります。
+          各月の収支を足したものが月末・年末の貯金額になります。
         </Text>
 
         <Input
@@ -466,12 +467,6 @@ function DashboardContent({
             ]}
           />
         </Stack>
-
-        {displayYear === PLAN_START_YEAR ? (
-          <Alert mb="lg">
-            この計画は2026年8月から開始します。1月から7月は表示しません。
-          </Alert>
-        ) : null}
 
         <Box hiddenFrom="md">
           <MonthlySavingsMobile
@@ -858,7 +853,7 @@ export default function DashboardPage() {
           </Group>
 
           <Alert>
-            2026年8月から毎月の収支・月末貯金額・年末貯金額を見積もれます。
+            毎月の収支・月末貯金額・年末貯金額を見積もれます。
           </Alert>  
           <DashboardContent
             isSaving={isSaving}

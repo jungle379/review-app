@@ -3,12 +3,14 @@ import {
   PLAN_START_MONTH,
   PLAN_START_YEAR,
   normalizeMonthlyData,
+  getCurrentPlanningMonth,
   type MonthlySavings,
 } from "@/lib/savings";
 import {
   ensureSavingsTable,
   getMonthlySavingsFrom,
   saveMonthlySavingsBatch,
+  deleteMonthlySavingsBefore,
 } from "@/lib/turso";
 
 function getUserId(value: unknown): string {
@@ -24,14 +26,51 @@ export default async function handler(
   try {
     await ensureSavingsTable();
 
+    const userId = getUserId(req.query.userId);
+
+    /*
+     * 現在のシステム日付から開始年月を決定
+     *
+     * 例:
+     * 2026/08/31 → 2026/08
+     * 2026/09/01 → 2026/09
+     * 2026/10/01 → 2026/10
+     */
+    const currentPlanningMonth = getCurrentPlanningMonth();
+
+    /*
+     * 現在月より前のデータを削除
+     *
+     * 9月1日になったら8月以前を削除
+     * 10月1日になったら9月以前を削除
+     */
+    await deleteMonthlySavingsBefore(
+      userId,
+      currentPlanningMonth.year,
+      currentPlanningMonth.month
+    );
+
     if (req.method === "GET") {
-      const fromYear = Number(req.query.fromYear ?? PLAN_START_YEAR);
-      const fromMonth = Number(req.query.fromMonth ?? PLAN_START_MONTH);
+      const fromYear = Number(
+        req.query.fromYear ??
+          currentPlanningMonth.year ??
+          PLAN_START_YEAR
+      );
+
+      const fromMonth = Number(
+        req.query.fromMonth ??
+          currentPlanningMonth.month ??
+          PLAN_START_MONTH
+      );
 
       const monthlyData = await getMonthlySavingsFrom(
-        getUserId(req.query.userId),
-        Number.isFinite(fromYear) ? fromYear : PLAN_START_YEAR,
-        Number.isFinite(fromMonth) ? fromMonth : PLAN_START_MONTH
+        userId,
+        Number.isFinite(fromYear)
+          ? fromYear
+          : currentPlanningMonth.year,
+        Number.isFinite(fromMonth)
+          ? fromMonth
+          : currentPlanningMonth.month
       );
 
       return res.status(200).json(monthlyData);
@@ -50,13 +89,13 @@ export default async function handler(
       const items = rawItems.map((item) =>
         normalizeMonthlyData(
           item,
-          Number(item.year ?? PLAN_START_YEAR),
-          Number(item.month ?? PLAN_START_MONTH)
+          Number(item.year ?? currentPlanningMonth.year),
+          Number(item.month ?? currentPlanningMonth.month)
         )
       );
 
       const saved = await saveMonthlySavingsBatch(
-        getUserId(body.userId),
+        getUserId(body.userId ?? userId),
         items
       );
 
