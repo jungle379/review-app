@@ -4,8 +4,10 @@ import { SignIn, useUser } from "@clerk/nextjs";
 import { Button, Container, Paper, Stack, Text, Title } from "@mantine/core";
 
 export default function LoginPage() {
+  // ユーザー認証状態
   const { isSignedIn, isLoaded } = useUser();
 
+  // ログインページのコンテンツ
   return (
     <>
       <Head>

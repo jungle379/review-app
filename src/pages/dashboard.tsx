@@ -76,30 +76,39 @@ function DashboardContent({
 }) {
   const planningMonth = useMemo(() => getCurrentPlanningMonth(), []);
 
+  // ユーザー設定
   const [settings, setSettings] = useState<UserSettings>({
     base_salary: 0,
     rent: 0,
   });
 
+  // 月別収支データ
   const [monthlySavings, setMonthlySavings] = useState<MonthlySavings[]>(
     []
   );
 
+  // 開始貯金額入力
   const [startingSavingsInput, setStartingSavingsInput] = useState("");
+  // 馬クラブ入力
   const [horseClubInputs, setHorseClubInputs] = useState<
     Record<string, string>
   >({});
 
+  // 表示年
   const [displayYear, setDisplayYear] = useState(planningMonth.year);
+  // ローディング中フラグ
   const [isLoadingSettings, setIsLoadingSettings] = useState(true);
 
+  // 表示可能な月リスト
   const visibleMonths = useMemo(
     () => getMonthsForYear(displayYear),
     [displayYear]
   );
 
+  // 開始貯金額
   const startingSavings = parseSignedNumericInput(startingSavingsInput);
 
+  // 月末貯金額
   const monthEndByMonth = useMemo(
     () =>
       calculateMonthEndByMonth(
@@ -111,6 +120,7 @@ function DashboardContent({
     [startingSavings, settings, monthlySavings, displayYear]
   );
 
+  // 今月の収支
   const currentMonthNet = useMemo(
     () =>
       calculateMonthNet(
@@ -126,6 +136,7 @@ function DashboardContent({
     [settings, monthlySavings, planningMonth]
   );
 
+  // 今月末の貯金額
   const currentMonthEndSavings = useMemo(
     () =>
       calculateMonthEndThrough(
@@ -138,6 +149,7 @@ function DashboardContent({
     [startingSavings, settings, monthlySavings, planningMonth]
   );
 
+  // 年末の貯金額
   const displayYearEndSavings = useMemo(
     () =>
       calculateYearEndSavings(
@@ -149,6 +161,7 @@ function DashboardContent({
     [startingSavings, settings, monthlySavings, displayYear]
   );
 
+  // データの読み込み
   useEffect(() => {
     if (!userId) {
       setIsLoadingSettings(false);
@@ -204,7 +217,7 @@ function DashboardContent({
     };
   }, [userId]);
 
-  // 月別収支表の更新処理
+  // 月別収支データの更新処理
   const handleMonthlyUpdate = (
     month: number,
     field: keyof Omit<MonthlySavings, "year" | "month" | "balance">,
@@ -241,6 +254,7 @@ function DashboardContent({
     );
   };
 
+  // 馬クラブデータの更新処理
   const handleHorseClubUpdate = (month: number, rawValue: string) => {
     if (!isValidSignedNumericInput(rawValue)) {
       return;
@@ -258,6 +272,7 @@ function DashboardContent({
     );
   };
 
+  // 開始貯金額の更新処理
   const handleStartingSavingsChange = (rawValue: string) => {
     if (!isValidSignedNumericInput(rawValue)) {
       return;
@@ -293,16 +308,19 @@ function DashboardContent({
     }
   };
 
+  // 入力のリセット処理
   const handleReset = () => {
     setStartingSavingsInput("");
     setHorseClubInputs({});
     toast.message("入力をリセットしました");
   };
 
+  // ローディング中の場合
   if (isLoadingSettings) {
     return <Loader />;
   }
 
+  // ダッシュボードのコンテンツ
   return (
     <>
       <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="lg">

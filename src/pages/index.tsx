@@ -14,8 +14,10 @@ import {
 import ResponsiveButtonGroup from "@/components/ResponsiveButtonGroup";
 
 const Home: NextPage = () => {
+  // ユーザー認証状態
   const { isSignedIn, isLoaded } = useUser();
 
+  // ホームページのコンテンツ
   return (
     <>
       <Head>
