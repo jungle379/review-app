@@ -1,19 +1,21 @@
 import { apiGet, apiPost } from "@/api/client";
 import {
-  PLAN_START_MONTH,
-  PLAN_START_YEAR,
+  getCurrentPlanningMonth,
   type MonthlySavings,
 } from "@/lib/savings";
 
 export function fetchMonthlySavings(
   userId: string,
-  fromYear = PLAN_START_YEAR,
-  fromMonth = PLAN_START_MONTH
+  fromYear?: number,
+  fromMonth?: number
 ) {
+  const planningMonth = getCurrentPlanningMonth();
+  const resolvedYear = fromYear ?? planningMonth.year;
+  const resolvedMonth = fromMonth ?? planningMonth.month;
   const params = new URLSearchParams({
     userId,
-    fromYear: String(fromYear),
-    fromMonth: String(fromMonth),
+    fromYear: String(resolvedYear),
+    fromMonth: String(resolvedMonth),
   });
 
   return apiGet<MonthlySavings[]>(`/api/monthly?${params.toString()}`);

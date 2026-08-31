@@ -313,9 +313,7 @@ function mapMonthlyRow(row: unknown): MonthlySavings {
 /**
  * 指定年月より前の月別データを削除する
  *
- * 例:
- * 2026年9月を指定した場合
- * → 2026年8月以前を削除
+ * 例: 2026年9月を指定した場合 → 2026年8月以前を削除
  */
 export async function deleteMonthlySavingsBefore(
   userId: string,

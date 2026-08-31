@@ -1,7 +1,7 @@
-export const PLAN_START_YEAR = 2026;
-export const PLAN_START_MONTH = 8;
 export const ANNUAL_SALARY_RAISE = 20000;
 export const SALARY_RAISE_MONTH = 11;
+/** 昇給カウントの基準年（毎年11月から加算。計画開始月とは独立） */
+export const SALARY_BASE_YEAR = 2026;
 
 export type SavingsValues = {
   balance: number;
@@ -90,43 +90,35 @@ export function monthKey(year: number, month: number): string {
   return `${year}-${month}`;
 }
 
+/** 計画の開始年月。システム日付の当月。月が変わると前月は開始対象外になる。 */
 export function getCurrentPlanningMonth(now = new Date()) {
-  const year = now.getFullYear();
-  const month = now.getMonth() + 1;
-
-  if (
-    year < PLAN_START_YEAR ||
-    (year === PLAN_START_YEAR && month < PLAN_START_MONTH)
-  ) {
-    return {
-      year: PLAN_START_YEAR,
-      month: PLAN_START_MONTH,
-    };
-  }
-
   return {
-    year,
-    month,
+    year: now.getFullYear(),
+    month: now.getMonth() + 1,
   };
 }
 
-export function getMonthsForYear(year: number): MonthColumn[] {
-  if (year < PLAN_START_YEAR) {
+export function getMonthsForYear(
+  year: number,
+  now = new Date()
+): MonthColumn[] {
+  const { year: startYear, month: startMonth } = getCurrentPlanningMonth(now);
+
+  if (year < startYear) {
     return [];
   }
 
-  const startMonth =
-    year === PLAN_START_YEAR ? PLAN_START_MONTH : 1;
+  const firstMonth = year === startYear ? startMonth : 1;
 
-  return MONTH_LABELS.slice(startMonth - 1).map((label, index) => ({
-    month: startMonth + index,
+  return MONTH_LABELS.slice(firstMonth - 1).map((label, index) => ({
+    month: firstMonth + index,
     label,
   }));
 }
 
 /**
  * 基本給与に対し、毎年11月から2万円ずつ加算した給与を返す。
- * 例: 2026/8〜10 → 基本給、2026/11〜2027/10 → 基本給+2万、2027/11〜 → 基本給+4万
+ * 例: 2026/1〜10 → 基本給、2026/11〜2027/10 → 基本給+2万、2027/11〜 → 基本給+4万
  */
 export function getSalaryForMonth(
   baseSalary: number,
@@ -135,15 +127,11 @@ export function getSalaryForMonth(
 ): number {
   let raises = 0;
 
-  for (let y = PLAN_START_YEAR; y <= year; y += 1) {
+  for (let y = SALARY_BASE_YEAR; y <= year; y += 1) {
     const raiseApplies =
       y < year || (y === year && month >= SALARY_RAISE_MONTH);
 
-    if (!raiseApplies) {
-      continue;
-    }
-
-    if (y > PLAN_START_YEAR || PLAN_START_MONTH <= SALARY_RAISE_MONTH) {
+    if (raiseApplies) {
       raises += 1;
     }
   }
@@ -205,8 +193,9 @@ export function calculateMonthEndByMonth(
 ): Record<number, number> {
   let runningTotal = toSafeNumber(startingSavings);
   const result: Record<number, number> = {};
+  const { year: startYear } = getCurrentPlanningMonth();
 
-  for (let year = PLAN_START_YEAR; year <= displayYear; year += 1) {
+  for (let year = startYear; year <= displayYear; year += 1) {
     const months = getMonthsForYear(year);
 
     for (const { month } of months) {
@@ -230,8 +219,9 @@ export function calculateMonthEndThrough(
   throughMonth: number
 ): number {
   let runningTotal = toSafeNumber(startingSavings);
+  const { year: startYear } = getCurrentPlanningMonth();
 
-  for (let year = PLAN_START_YEAR; year <= throughYear; year += 1) {
+  for (let year = startYear; year <= throughYear; year += 1) {
     const months = getMonthsForYear(year);
 
     for (const { month } of months) {
@@ -247,7 +237,7 @@ export function calculateMonthEndThrough(
   return runningTotal;
 }
 
-/** 指定年の12月末（計画開始前の年は開始月以降のみ）時点の貯金額 */
+/** 指定年の12月末（開始年は当月以降のみ）時点の貯金額 */
 export function calculateYearEndSavings(
   startingSavings: number,
   settings: UserSettings,

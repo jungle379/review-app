@@ -35,7 +35,6 @@ import { fetchStartingSavings, saveStartingSavings } from "@/api/savings";
 import { fetchSettings } from "@/api/settings";
 
 import {
-  PLAN_START_YEAR,
   calculateMonthEndByMonth,
   calculateMonthEndThrough,
   calculateMonthNet,
@@ -97,13 +96,20 @@ function DashboardContent({
 
   // 表示年
   const [displayYear, setDisplayYear] = useState(planningMonth.year);
+
+  useEffect(() => {
+    if (displayYear < planningMonth.year) {
+      setDisplayYear(planningMonth.year);
+    }
+  }, [displayYear, planningMonth.year]);
+
   // ローディング中フラグ
   const [isLoadingSettings, setIsLoadingSettings] = useState(true);
 
   // 表示可能な月リスト
   const visibleMonths = useMemo(
     () => getMonthsForYear(displayYear),
-    [displayYear]
+    [displayYear, planningMonth.year, planningMonth.month]
   );
 
   // 開始貯金額
@@ -415,7 +421,7 @@ function DashboardContent({
               <ActionIcon
                 variant="light"
                 aria-label="前の年"
-                disabled={displayYear <= PLAN_START_YEAR}
+                disabled={displayYear <= planningMonth.year}
                 onClick={() => setDisplayYear((year) => year - 1)}
               >
                 <IconChevronLeft size={16} />
