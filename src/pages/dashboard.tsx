@@ -563,7 +563,7 @@ function DashboardContent({
                 </Table.Tr>
 
                 <Table.Tr>
-                  <Table.Td fw={600}>賞与</Table.Td>
+                  <Table.Td fw={600}>賞与/交通費</Table.Td>
                   {visibleMonths.map(({ month }) => {
                     const data = findMonthlyData(
                       monthlySavings,

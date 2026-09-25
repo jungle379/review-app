@@ -462,7 +462,9 @@ export async function saveMonthlySavings(
 
   return data;
 }
-
+/*
+** バッチで月別データを保存
+*/
 export async function saveMonthlySavingsBatch(
   userId: string,
   items: MonthlySavings[]
