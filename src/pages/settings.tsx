@@ -19,19 +19,25 @@ import MantineLoader from "@/components/Loader";
 import ResponsiveButtonGroup from "@/components/ResponsiveButtonGroup";
 import { toast } from "sonner";
 
+// 型定義
 interface UserSettings {
   base_salary: string;
   rent: string;
 }
-// 設定ページ
-export default function SettingsPage() {
-  const { user, isLoaded, isSignedIn } = useUser();
 
+/*
+** 設定ページ
+*/
+export default function SettingsPage() {
+  // 設定値
+  const { user, isLoaded, isSignedIn } = useUser();
+  // 初期値
   const [settings, setSettings] = useState<UserSettings>({
     base_salary: "",
     rent: "",
   });
 
+  // 状態管理
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -43,6 +49,7 @@ export default function SettingsPage() {
       return;
     }
 
+    // 初期値読み込み
     const loadSettings = async () => {
       try {
         setIsLoading(true);
@@ -63,11 +70,6 @@ export default function SettingsPage() {
               : "",
         });
       } catch (error) {
-        console.error(
-          "設定取得エラー:",
-          error
-        );
-
         toast.error(
           error instanceof Error
             ? error.message

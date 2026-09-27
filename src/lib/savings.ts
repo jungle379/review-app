@@ -3,6 +3,7 @@ export const SALARY_RAISE_MONTH = 11;
 /** 昇給カウントの基準年（毎年11月から加算。計画開始月とは独立） */
 export const SALARY_BASE_YEAR = 2026;
 
+// 貯金の値を表す型
 export type SavingsValues = {
   balance: number;
   salary: number;
@@ -13,11 +14,13 @@ export type SavingsValues = {
   friendClub: number;
 };
 
+// ユーザー設定の型
 export type UserSettings = {
   base_salary: number;
   rent: number;
 };
 
+// 月ごとの貯金データの型
 export type MonthlySavings = {
   year: number;
   month: number;
@@ -31,11 +34,13 @@ export type MonthlySavings = {
   balance: number;
 };
 
+// 月ごとの貯金データの型（DB保存用）
 export type MonthColumn = {
   month: number;
   label: string;
 };
 
+// 貯金のデフォルト値
 export const defaultSavingsValues: SavingsValues = {
   balance: 0,
   salary: 0,
@@ -46,11 +51,13 @@ export const defaultSavingsValues: SavingsValues = {
   friendClub: 0,
 };
 
+// ユーザー設定のデフォルト値
 export const defaultUserSettings: UserSettings = {
   base_salary: 0,
   rent: 0,
 };
 
+// 月ごとの貯金データのデフォルト値
 const MONTH_LABELS = [
   "1月",
   "2月",
@@ -66,12 +73,14 @@ const MONTH_LABELS = [
   "12月",
 ];
 
+// 値を安全な数値に変換する
 export function toSafeNumber(value: unknown): number {
   const numberValue = Number(value);
 
   return Number.isFinite(numberValue) ? numberValue : 0;
 }
 
+// 入力値が有効な符号付き数値かどうかを判定する
 export function isValidSignedNumericInput(value: string): boolean {
   return value === "" || /^-?\d*\.?\d*$/.test(value);
 }
@@ -86,6 +95,7 @@ export function parseSignedNumericInput(value: string): number {
   return toSafeNumber(trimmed);
 }
 
+// 月間の貯金データのキーを生成する
 export function monthKey(year: number, month: number): string {
   return `${year}-${month}`;
 }
@@ -98,6 +108,7 @@ export function getCurrentPlanningMonth(now = new Date()) {
   };
 }
 
+// 指定された年份の月リストを取得する
 export function getMonthsForYear(
   year: number,
   now = new Date()
