@@ -1,6 +1,6 @@
 export const ANNUAL_SALARY_RAISE = 20000;
-export const SALARY_RAISE_MONTH = 11;
-/** 昇給カウントの基準年（毎年11月から加算。計画開始月とは独立） */
+export const SALARY_RAISE_MONTH = 7;
+/** 昇給カウントの基準年（毎年7月から加算。計画開始月とは独立） */
 export const SALARY_BASE_YEAR = 2026;
 
 // 貯金の値を表す型
@@ -128,8 +128,8 @@ export function getMonthsForYear(
 }
 
 /**
- * 基本給与に対し、毎年11月から2万円ずつ加算した給与を返す。
- * 例: 2026/1〜10 → 基本給、2026/11〜2027/10 → 基本給+2万、2027/11〜 → 基本給+4万
+ * 基本給与に対し、毎年7月から2万円ずつ加算した給与を返す。
+ * 例: 2026/1〜10 → 基本給、2027/7〜2028/6 → 基本給+2万、2028/7〜 → 基本給+4万
  */
 export function getSalaryForMonth(
   baseSalary: number,

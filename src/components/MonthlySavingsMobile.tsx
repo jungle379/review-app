@@ -65,7 +65,7 @@ export default function MonthlySavingsMobile({
               <div>
                 <Text size="xs" c="dimmed" mb={4}>
                   給与
-                  {month === 11 ? "（11月加算込み）" : ""}
+                  {month === 7 ? "（7月加算込み）" : ""}
                 </Text>
                 <Text size="sm" fw={500}>
                   ¥{salary.toLocaleString()}

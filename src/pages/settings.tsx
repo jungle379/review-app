@@ -278,7 +278,7 @@ export default function SettingsPage() {
                   size="sm"
                   mb="md"
                 >
-                  毎月の基本給与です。ダッシュボードでは毎年11月から2万円加算して計算されます。
+                  毎月の基本給与です。ダッシュボードでは毎年7月から2万円加算して計算されます。
                 </Text>
 
                 <Input
