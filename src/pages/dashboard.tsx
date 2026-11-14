@@ -345,13 +345,13 @@ function DashboardContent({
             {planningMonth.year}年{planningMonth.month}月
           </Text>
           <Text c="dimmed" size="xs" visibleFrom="sm">
-            給与 + 賞与 - 家賃 - 諸経費
+            給与 + 賞与(交通費など含む) - 諸経費
           </Text>
         </Card>
 
         <Card radius="lg" p={{ base: "md", md: "lg" }} withBorder>
           <Group justify="space-between">
-            <Text fw={600}>今月末の貯金額</Text>
+            <Text fw={600}>今月末の貯金想定額</Text>
             <IconWallet size={20} color="#2f9e44" />
           </Group>
 
@@ -367,7 +367,7 @@ function DashboardContent({
 
         <Card radius="lg" p={{ base: "md", md: "lg" }} withBorder>
           <Group justify="space-between">
-            <Text fw={600}>年末の貯金額</Text>
+            <Text fw={600}>年末の貯金想定額</Text>
             <IconCalendarStats size={20} color="#e67700" />
           </Group>
 
@@ -400,7 +400,7 @@ function DashboardContent({
           開始貯金額
         </Title>
         <Text c="dimmed" size="sm" mt="xs" mb="md">
-          各月の収支を足したものが月末・年末の貯金額になります。
+          毎月初にここの数値を現在の貯金額に合わせてください。
         </Text>
 
         <Input
@@ -530,6 +530,35 @@ function DashboardContent({
                 </Table.Tr>
 
                 <Table.Tr>
+                  <Table.Td fw={600}>賞与/交通費</Table.Td>
+                  {visibleMonths.map(({ month }) => {
+                    const data = findMonthlyData(
+                      monthlySavings,
+                      displayYear,
+                      month
+                    );
+
+                    return (
+                      <Table.Td key={`bonus-${month}`}>
+                        <Input
+                          value={String(data?.bonus ?? "")}
+                          size="xs"
+                          inputMode="numeric"
+                          placeholder="0"
+                          onChange={(event) =>
+                            handleMonthlyUpdate(
+                              month,
+                              "bonus",
+                              event.currentTarget.value
+                            )
+                          }
+                        />
+                      </Table.Td>
+                    );
+                  })}
+                </Table.Tr>
+
+                <Table.Tr>
                   <Table.Td fw={600}>家賃</Table.Td>
                   {visibleMonths.map(({ month }) => {
                     const data = findMonthlyData(
@@ -553,35 +582,6 @@ function DashboardContent({
                             handleMonthlyUpdate(
                               month,
                               "rent",
-                              event.currentTarget.value
-                            )
-                          }
-                        />
-                      </Table.Td>
-                    );
-                  })}
-                </Table.Tr>
-
-                <Table.Tr>
-                  <Table.Td fw={600}>賞与/交通費</Table.Td>
-                  {visibleMonths.map(({ month }) => {
-                    const data = findMonthlyData(
-                      monthlySavings,
-                      displayYear,
-                      month
-                    );
-
-                    return (
-                      <Table.Td key={`bonus-${month}`}>
-                        <Input
-                          value={String(data?.bonus ?? "")}
-                          size="xs"
-                          inputMode="numeric"
-                          placeholder="0"
-                          onChange={(event) =>
-                            handleMonthlyUpdate(
-                              month,
-                              "bonus",
                               event.currentTarget.value
                             )
                           }
@@ -858,9 +858,6 @@ export default function DashboardPage() {
             />
           </Group>
 
-          <Alert>
-            毎月の収支・月末貯金額・年末貯金額を見積もれます。
-          </Alert>  
           <DashboardContent
             isSaving={isSaving}
             setIsSaving={setIsSaving}
