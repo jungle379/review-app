@@ -11,12 +11,14 @@ import {
   deleteMonthlySavingsBefore,
 } from "@/lib/turso";
 
+// ユーザーIDを取得する関数
 function getUserId(value: unknown): string {
   return typeof value === "string" && value.length > 0
     ? value
     : "local-user";
 }
 
+// 現在の計画対象月より前のデータを削除する
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse

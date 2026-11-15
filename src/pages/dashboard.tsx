@@ -6,7 +6,6 @@ import { SignOutButton, useUser } from "@clerk/nextjs";
 import {
   Box,
   ActionIcon,
-  Alert,
   Button,
   Card,
   Container,
