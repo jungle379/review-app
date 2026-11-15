@@ -27,6 +27,7 @@ import {
   IconPigMoney,
   IconWallet,
   IconSettings,
+  IconExternalLink,
 } from "@tabler/icons-react";
 
 import { fetchMonthlySavings, saveMonthlySavings } from "@/api/monthly";
@@ -834,6 +835,18 @@ export default function DashboardPage() {
 
             <ResponsiveButtonGroup
               items={[
+                {
+                  key: "dividend-calculator",
+                  label: "配当計算アプリ",
+                  buttonProps: {
+                    component: "a",
+                    href: "https://silkhorse-dividend-calculator.vercel.app/",
+                    target: "_blank",
+                    rel: "noopener noreferrer",
+                    leftSection: <IconExternalLink size={16} />,
+                    variant: "light",
+                  },
+                },
                 {
                   key: "home",
                   label: "ホームに戻る",
