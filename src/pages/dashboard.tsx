@@ -397,7 +397,7 @@ function DashboardContent({
 
       <Paper radius="lg" p={{ base: "md", md: "lg" }} withBorder mt="lg">
         <Title order={3} fz={{ base: 20, md: 24 }}>
-          開始貯金額
+          貯金額
         </Title>
         <Text c="dimmed" size="sm" mt="xs" mb="md">
           毎月初にここの数値を現在の貯金額に合わせてください。
@@ -490,9 +490,6 @@ function DashboardContent({
         </Box>
 
         <Box visibleFrom="md">
-          <Text size="xs" c="dimmed" mb="xs">
-            表は左右にスクロールできます。左端の項目名は固定されます。
-          </Text>
           <div className="table-scroll-wrapper">
             <Table striped highlightOnHover className="table-sticky-first">
               <Table.Thead>
@@ -592,35 +589,6 @@ function DashboardContent({
                 </Table.Tr>
 
                 <Table.Tr>
-                  <Table.Td fw={600}>火災保険</Table.Td>
-                  {visibleMonths.map(({ month }) => {
-                    const data = findMonthlyData(
-                      monthlySavings,
-                      displayYear,
-                      month
-                    );
-
-                    return (
-                      <Table.Td key={`fire-insurance-${month}`}>
-                        <Input
-                          value={String(data?.fire_insurance ?? "")}
-                          size="xs"
-                          inputMode="numeric"
-                          placeholder="0"
-                          onChange={(event) =>
-                            handleMonthlyUpdate(
-                              month,
-                              "fire_insurance",
-                              event.currentTarget.value
-                            )
-                          }
-                        />
-                      </Table.Td>
-                    );
-                  })}
-                </Table.Tr>
-
-                <Table.Tr>
                   <Table.Td fw={600}>カード</Table.Td>
                   {visibleMonths.map(({ month }) => {
                     const data = findMonthlyData(
@@ -674,6 +642,35 @@ function DashboardContent({
                           onChange={(event) =>
                             handleHorseClubUpdate(
                               month,
+                              event.currentTarget.value
+                            )
+                          }
+                        />
+                      </Table.Td>
+                    );
+                  })}
+                </Table.Tr>
+
+                <Table.Tr>
+                  <Table.Td fw={600}>火災保険</Table.Td>
+                  {visibleMonths.map(({ month }) => {
+                    const data = findMonthlyData(
+                      monthlySavings,
+                      displayYear,
+                      month
+                    );
+
+                    return (
+                      <Table.Td key={`fire-insurance-${month}`}>
+                        <Input
+                          value={String(data?.fire_insurance ?? "")}
+                          size="xs"
+                          inputMode="numeric"
+                          placeholder="0"
+                          onChange={(event) =>
+                            handleMonthlyUpdate(
+                              month,
+                              "fire_insurance",
                               event.currentTarget.value
                             )
                           }
@@ -773,14 +770,19 @@ function DashboardContent({
   );
 }
 
+// ダッシュボードページ
 export default function DashboardPage() {
+  // ユーザー情報の取得
   const { user, isLoaded, isSignedIn } = useUser();
+  // 保存中フラグ
   const [isSaving, setIsSaving] = useState(false);
 
+  // ログイン状態の確認
   if (!isLoaded) {
     return <Loader />;
   }
 
+  // 未ログインの場合はログイン画面へ誘導
   if (!isSignedIn) {
     return (
       <>
@@ -792,9 +794,6 @@ export default function DashboardPage() {
           <Paper radius="lg" p="xl" withBorder>
             <Stack align="center" gap="md">
               <Title order={2}>ログインが必要です</Title>
-              <Text c="dimmed" ta="center">
-                この画面は認証済みユーザーのみ利用できます。
-              </Text>
               <Button component={Link} href="/login" color="blue" size="md" fullWidth>
                 ログイン画面へ
               </Button>
@@ -805,6 +804,7 @@ export default function DashboardPage() {
     );
   }
 
+  // ユーザー情報の取得
   const userName = user?.fullName ?? "ゲスト";
   const userEmail =
     user?.primaryEmailAddress?.emailAddress ?? "未ログイン";
