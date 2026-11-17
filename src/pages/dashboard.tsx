@@ -58,7 +58,9 @@ import {
 import Loader from "@/components/Loader";
 import CommaFormattedInput from "@/components/CommaFormattedInput";
 import MonthlySavingsMobile from "@/components/MonthlySavingsMobile";
-import ResponsiveButtonGroup from "@/components/ResponsiveButtonGroup";
+import ResponsiveButtonGroup, {
+  type ResponsiveButtonItem,
+} from "@/components/ResponsiveButtonGroup";
 import { toast } from "sonner";
 
 // ダッシュボードのコンテンツ
@@ -329,6 +331,36 @@ function DashboardContent({
     return <Loader />;
   }
 
+  const actionItems: ResponsiveButtonItem[] = [
+    {
+      key: "settings",
+      label: "設定",
+      buttonProps: {
+        component: Link,
+        href: "/settings",
+        leftSection: <IconSettings size={16} />,
+        variant: "light",
+      },
+    },
+    {
+      key: "reset",
+      label: "リセット",
+      buttonProps: {
+        variant: "light",
+        color: "gray",
+        onClick: handleReset,
+      },
+    },
+    {
+      key: "save",
+      label: "保存",
+      buttonProps: {
+        onClick: handleSave,
+        loading: isSaving,
+      },
+    },
+  ];
+
   // ダッシュボードのコンテンツ
   return (
     <>
@@ -398,23 +430,6 @@ function DashboardContent({
       </SimpleGrid>
 
       <Paper radius="lg" p={{ base: "md", md: "lg" }} withBorder mt="lg">
-        <Title order={3} fz={{ base: 20, md: 24 }}>
-          貯金額
-        </Title>
-        <Text c="dimmed" size="sm" mt="xs" mb="md">
-          毎月初にここの数値を現在の貯金額に合わせてください。
-        </Text>
-
-        <CommaFormattedInput
-          value={startingSavingsInput}
-          inputMode="decimal"
-          placeholder="0"
-          size="md"
-          onChange={handleStartingSavingsChange}
-        />
-      </Paper>
-
-      <Paper radius="lg" p={{ base: "md", md: "lg" }} withBorder mt="lg">
         <Stack gap="md" mb="lg">
           <Group justify="space-between" wrap="wrap" gap="sm">
             <Group gap="xs" wrap="nowrap">
@@ -441,39 +456,50 @@ function DashboardContent({
             </Group>
           </Group>
 
-          <ResponsiveButtonGroup
-            mobileCols={2}
-            items={[
-              {
-                key: "settings",
-                label: "設定",
-                buttonProps: {
-                  component: Link,
-                  href: "/settings",
-                  leftSection: <IconSettings size={16} />,
-                  variant: "light",
-                },
-              },
-              {
-                key: "reset",
-                label: "リセット",
-                buttonProps: {
-                  variant: "light",
-                  color: "gray",
-                  onClick: handleReset,
-                },
-              },
-              {
-                key: "save",
-                label: "保存",
-                buttonProps: {
-                  onClick: handleSave,
-                  loading: isSaving,
-                },
-              },
-            ]}
-          />
+          <Box hiddenFrom="md">
+            <ResponsiveButtonGroup mobileCols={2} items={actionItems} />
+          </Box>
         </Stack>
+
+        <Box hiddenFrom="md" mb="lg">
+          <Title order={3} fz={{ base: 18, md: 20 }}>
+            貯金額
+          </Title>
+          <Text c="dimmed" size="sm" mt="xs" mb="md">
+            毎月初にここの数値を現在の貯金額に合わせてください。
+          </Text>
+          <CommaFormattedInput
+            value={startingSavingsInput}
+            inputMode="decimal"
+            placeholder="0"
+            size="md"
+            onChange={handleStartingSavingsChange}
+          />
+        </Box>
+
+        <Group
+          visibleFrom="md"
+          justify="space-between"
+          align="flex-end"
+          mb="lg"
+        >
+          <Box w={320}>
+            <Title order={3} fz={20}>
+              貯金額
+            </Title>
+            <Text c="dimmed" size="sm" mt="xs" mb="md">
+              毎月初にここの数値を現在の貯金額に合わせてください。
+            </Text>
+            <CommaFormattedInput
+              value={startingSavingsInput}
+              inputMode="decimal"
+              placeholder="0"
+              size="md"
+              onChange={handleStartingSavingsChange}
+            />
+          </Box>
+          <ResponsiveButtonGroup items={actionItems} />
+        </Group>
 
         <Box hiddenFrom="md">
           <MonthlySavingsMobile
