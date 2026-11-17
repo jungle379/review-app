@@ -11,6 +11,7 @@ import {
   Container,
   Group,
   Input,
+  Menu,
   Paper,
   SimpleGrid,
   Stack,
@@ -28,6 +29,7 @@ import {
   IconWallet,
   IconSettings,
   IconExternalLink,
+  IconMenu2,
 } from "@tabler/icons-react";
 
 import { fetchMonthlySavings, saveMonthlySavings } from "@/api/monthly";
@@ -442,6 +444,7 @@ function DashboardContent({
           </Group>
 
           <ResponsiveButtonGroup
+            mobileCols={2}
             items={[
               {
                 key: "settings",
@@ -494,7 +497,7 @@ function DashboardContent({
             <Table striped highlightOnHover className="table-sticky-first">
               <Table.Thead>
                 <Table.Tr>
-                  <Table.Th style={{ minWidth: 88 }}>項目</Table.Th>
+                  <Table.Th style={{ minWidth: 88 }}>月</Table.Th>
                   {visibleMonths.map(({ month, label }) => (
                     <Table.Th
                       key={month}
@@ -833,41 +836,82 @@ export default function DashboardPage() {
               </Title>
             </div>
 
-            <ResponsiveButtonGroup
-              items={[
-                {
-                  key: "dividend-calculator",
-                  label: "配当計算アプリ",
-                  buttonProps: {
-                    component: "a",
-                    href: "https://silkhorse-dividend-calculator.vercel.app/",
-                    target: "_blank",
-                    rel: "noopener noreferrer",
-                    leftSection: <IconExternalLink size={16} />,
-                    variant: "light",
+            <Box hiddenFrom="sm">
+              <Menu position="bottom-end" shadow="md">
+                <Menu.Target>
+                  <ActionIcon
+                    variant="light"
+                    size="lg"
+                    aria-label="メニューを開く"
+                  >
+                    <IconMenu2 size={20} />
+                  </ActionIcon>
+                </Menu.Target>
+                <Menu.Dropdown>
+                  <Menu.Item
+                    component="a"
+                    href="https://silkhorse-dividend-calculator.vercel.app/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    leftSection={<IconExternalLink size={16} />}
+                  >
+                    配当計算アプリ
+                  </Menu.Item>
+                  <Menu.Item
+                    component={Link}
+                    href="/"
+                    leftSection={<IconArrowLeft size={16} />}
+                  >
+                    ホームに戻る
+                  </Menu.Item>
+                  <SignOutButton>
+                    <Menu.Item
+                      color="red"
+                    >
+                      ログアウト
+                    </Menu.Item>
+                  </SignOutButton>
+                </Menu.Dropdown>
+              </Menu>
+            </Box>
+
+            <Box visibleFrom="sm">
+              <ResponsiveButtonGroup
+                items={[
+                  {
+                    key: "dividend-calculator",
+                    label: "配当計算アプリ",
+                    buttonProps: {
+                      component: "a",
+                      href: "https://silkhorse-dividend-calculator.vercel.app/",
+                      target: "_blank",
+                      rel: "noopener noreferrer",
+                      leftSection: <IconExternalLink size={16} />,
+                      variant: "light",
+                    },
                   },
-                },
-                {
-                  key: "home",
-                  label: "ホームに戻る",
-                  buttonProps: {
-                    component: Link,
-                    href: "/",
-                    leftSection: <IconArrowLeft size={16} />,
-                    variant: "light",
+                  {
+                    key: "home",
+                    label: "ホームに戻る",
+                    buttonProps: {
+                      component: Link,
+                      href: "/",
+                      leftSection: <IconArrowLeft size={16} />,
+                      variant: "light",
+                    },
                   },
-                },
-                {
-                  key: "logout",
-                  label: "ログアウト",
-                  buttonProps: {
-                    variant: "filled",
-                    color: "red",
+                  {
+                    key: "logout",
+                    label: "ログアウト",
+                    buttonProps: {
+                      variant: "filled",
+                      color: "red",
+                    },
+                    wrap: (button) => <SignOutButton>{button}</SignOutButton>,
                   },
-                  wrap: (button) => <SignOutButton>{button}</SignOutButton>,
-                },
-              ]}
-            />
+                ]}
+              />
+            </Box>
           </Group>
 
           <DashboardContent
