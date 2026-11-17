@@ -10,7 +10,6 @@ import {
   Card,
   Container,
   Group,
-  Input,
   Menu,
   Paper,
   SimpleGrid,
@@ -57,6 +56,7 @@ import {
 } from "@/lib/savings";
 
 import Loader from "@/components/Loader";
+import CommaFormattedInput from "@/components/CommaFormattedInput";
 import MonthlySavingsMobile from "@/components/MonthlySavingsMobile";
 import ResponsiveButtonGroup from "@/components/ResponsiveButtonGroup";
 import { toast } from "sonner";
@@ -405,14 +405,12 @@ function DashboardContent({
           毎月初にここの数値を現在の貯金額に合わせてください。
         </Text>
 
-        <Input
+        <CommaFormattedInput
           value={startingSavingsInput}
           inputMode="decimal"
           placeholder="0"
           size="md"
-          onChange={(event) =>
-            handleStartingSavingsChange(event.currentTarget.value)
-          }
+          onChange={handleStartingSavingsChange}
         />
       </Paper>
 
@@ -540,17 +538,13 @@ function DashboardContent({
 
                     return (
                       <Table.Td key={`bonus-${month}`}>
-                        <Input
+                        <CommaFormattedInput
                           value={String(data?.bonus ?? "")}
                           size="xs"
                           inputMode="numeric"
                           placeholder="0"
-                          onChange={(event) =>
-                            handleMonthlyUpdate(
-                              month,
-                              "bonus",
-                              event.currentTarget.value
-                            )
+                          onChange={(value) =>
+                            handleMonthlyUpdate(month, "bonus", value)
                           }
                         />
                       </Table.Td>
@@ -569,7 +563,7 @@ function DashboardContent({
 
                     return (
                       <Table.Td key={`rent-${month}`}>
-                        <Input
+                        <CommaFormattedInput
                           value={
                             data?.rent === null || data?.rent === undefined
                               ? String(settings.rent || "")
@@ -578,12 +572,8 @@ function DashboardContent({
                           size="xs"
                           inputMode="numeric"
                           placeholder={String(settings.rent || 0)}
-                          onChange={(event) =>
-                            handleMonthlyUpdate(
-                              month,
-                              "rent",
-                              event.currentTarget.value
-                            )
+                          onChange={(value) =>
+                            handleMonthlyUpdate(month, "rent", value)
                           }
                         />
                       </Table.Td>
@@ -602,17 +592,13 @@ function DashboardContent({
 
                     return (
                       <Table.Td key={`card-${month}`}>
-                        <Input
+                        <CommaFormattedInput
                           value={String(data?.card ?? "")}
                           size="xs"
                           inputMode="numeric"
                           placeholder="0"
-                          onChange={(event) =>
-                            handleMonthlyUpdate(
-                              month,
-                              "card",
-                              event.currentTarget.value
-                            )
+                          onChange={(value) =>
+                            handleMonthlyUpdate(month, "card", value)
                           }
                         />
                       </Table.Td>
@@ -632,7 +618,7 @@ function DashboardContent({
 
                     return (
                       <Table.Td key={`horse-${month}`}>
-                        <Input
+                        <CommaFormattedInput
                           value={
                             horseClubInputs[draftKey] ??
                             (data?.horse_club == null
@@ -642,11 +628,8 @@ function DashboardContent({
                           size="xs"
                           inputMode="decimal"
                           placeholder="0"
-                          onChange={(event) =>
-                            handleHorseClubUpdate(
-                              month,
-                              event.currentTarget.value
-                            )
+                          onChange={(value) =>
+                            handleHorseClubUpdate(month, value)
                           }
                         />
                       </Table.Td>
@@ -665,17 +648,13 @@ function DashboardContent({
 
                     return (
                       <Table.Td key={`fire-insurance-${month}`}>
-                        <Input
+                        <CommaFormattedInput
                           value={String(data?.fire_insurance ?? "")}
                           size="xs"
                           inputMode="numeric"
                           placeholder="0"
-                          onChange={(event) =>
-                            handleMonthlyUpdate(
-                              month,
-                              "fire_insurance",
-                              event.currentTarget.value
-                            )
+                          onChange={(value) =>
+                            handleMonthlyUpdate(month, "fire_insurance", value)
                           }
                         />
                       </Table.Td>
@@ -694,17 +673,13 @@ function DashboardContent({
 
                     return (
                       <Table.Td key={`friend-${month}`}>
-                        <Input
+                        <CommaFormattedInput
                           value={String(data?.friend_club ?? "")}
                           size="xs"
                           inputMode="numeric"
                           placeholder="0"
-                          onChange={(event) =>
-                            handleMonthlyUpdate(
-                              month,
-                              "friend_club",
-                              event.currentTarget.value
-                            )
+                          onChange={(value) =>
+                            handleMonthlyUpdate(month, "friend_club", value)
                           }
                         />
                       </Table.Td>

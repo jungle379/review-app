@@ -1,11 +1,11 @@
 import {
   Card,
-  Input,
   SimpleGrid,
   Stack,
   Text,
   Title,
 } from "@mantine/core";
+import CommaFormattedInput from "@/components/CommaFormattedInput";
 import {
   calculateMonthNet,
   findMonthlyData,
@@ -76,7 +76,7 @@ export default function MonthlySavingsMobile({
                 <Text size="xs" c="dimmed" mb={4}>
                   家賃
                 </Text>
-                <Input
+                <CommaFormattedInput
                   value={
                     data?.rent === null || data?.rent === undefined
                       ? String(settings.rent || "")
@@ -85,9 +85,7 @@ export default function MonthlySavingsMobile({
                   size="sm"
                   inputMode="numeric"
                   placeholder={String(settings.rent || 0)}
-                  onChange={(event) =>
-                    onMonthlyUpdate(month, "rent", event.currentTarget.value)
-                  }
+                  onChange={(value) => onMonthlyUpdate(month, "rent", value)}
                 />
               </div>
 
@@ -95,14 +93,12 @@ export default function MonthlySavingsMobile({
                 <Text size="xs" c="dimmed" mb={4}>
                   賞与
                 </Text>
-                <Input
+                <CommaFormattedInput
                   value={String(data?.bonus ?? "")}
                   size="sm"
                   inputMode="numeric"
                   placeholder="0"
-                  onChange={(event) =>
-                    onMonthlyUpdate(month, "bonus", event.currentTarget.value)
-                  }
+                  onChange={(value) => onMonthlyUpdate(month, "bonus", value)}
                 />
               </div>
 
@@ -110,17 +106,13 @@ export default function MonthlySavingsMobile({
                 <Text size="xs" c="dimmed" mb={4}>
                   火災保険
                 </Text>
-                <Input
+                <CommaFormattedInput
                   value={String(data?.fire_insurance ?? "")}
                   size="sm"
                   inputMode="numeric"
                   placeholder="0"
-                  onChange={(event) =>
-                    onMonthlyUpdate(
-                      month,
-                      "fire_insurance",
-                      event.currentTarget.value
-                    )
+                  onChange={(value) =>
+                    onMonthlyUpdate(month, "fire_insurance", value)
                   }
                 />
               </div>
@@ -129,14 +121,12 @@ export default function MonthlySavingsMobile({
                 <Text size="xs" c="dimmed" mb={4}>
                   カード
                 </Text>
-                <Input
+                <CommaFormattedInput
                   value={String(data?.card ?? "")}
                   size="sm"
                   inputMode="numeric"
                   placeholder="0"
-                  onChange={(event) =>
-                    onMonthlyUpdate(month, "card", event.currentTarget.value)
-                  }
+                  onChange={(value) => onMonthlyUpdate(month, "card", value)}
                 />
               </div>
 
@@ -144,7 +134,7 @@ export default function MonthlySavingsMobile({
                 <Text size="xs" c="dimmed" mb={4}>
                   馬主（マイナス=収入）
                 </Text>
-                <Input
+                <CommaFormattedInput
                   value={
                     horseClubInputs[draftKey] ??
                     (data?.horse_club == null ? "" : String(data.horse_club))
@@ -152,9 +142,7 @@ export default function MonthlySavingsMobile({
                   size="sm"
                   inputMode="decimal"
                   placeholder="0"
-                  onChange={(event) =>
-                    onHorseClubUpdate(month, event.currentTarget.value)
-                  }
+                  onChange={(value) => onHorseClubUpdate(month, value)}
                 />
               </div>
 
@@ -162,17 +150,13 @@ export default function MonthlySavingsMobile({
                 <Text size="xs" c="dimmed" mb={4}>
                   友の会
                 </Text>
-                <Input
+                <CommaFormattedInput
                   value={String(data?.friend_club ?? "")}
                   size="sm"
                   inputMode="numeric"
                   placeholder="0"
-                  onChange={(event) =>
-                    onMonthlyUpdate(
-                      month,
-                      "friend_club",
-                      event.currentTarget.value
-                    )
+                  onChange={(value) =>
+                    onMonthlyUpdate(month, "friend_club", value)
                   }
                 />
               </div>
