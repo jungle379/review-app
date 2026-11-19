@@ -292,6 +292,7 @@ function DashboardContent({
     setStartingSavingsInput(rawValue);
   };
 
+  // 保存処理
   const handleSave = async () => {
     if (isSaving) {
       return;
@@ -465,9 +466,6 @@ function DashboardContent({
           <Title order={3} fz={{ base: 18, md: 20 }}>
             貯金額
           </Title>
-          <Text c="dimmed" size="sm" mt="xs" mb="md">
-            毎月初にここの数値を現在の貯金額に合わせてください。
-          </Text>
           <CommaFormattedInput
             value={startingSavingsInput}
             inputMode="decimal"
@@ -487,9 +485,6 @@ function DashboardContent({
             <Title order={3} fz={20}>
               貯金額
             </Title>
-            <Text c="dimmed" size="sm" mt="xs" mb="md">
-              毎月初にここの数値を現在の貯金額に合わせてください。
-            </Text>
             <CommaFormattedInput
               value={startingSavingsInput}
               inputMode="decimal"
